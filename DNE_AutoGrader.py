@@ -530,7 +530,7 @@ class AutoGrader():
                     else:
                         log("This assignment has no due date.")
                 else:
-                    log(f"Failed to retrieve assignment. Status Code: {response.status_code} Response: {response.text}", type="error")
+                    log(f"Failed to retrieve assignment. Status Code: {assignment_response.status_code} Response: {assignment_response.text}", type="error")
                     canvas_submissoin_status = False
                     continue
 
@@ -539,7 +539,7 @@ class AutoGrader():
                     previous_grade = float(submission.get('grade'))
                     log(f"Previous submission grade: {previous_grade}")
                 else:
-                    log(f"Failed to retrieve previous submission. Status Code: {response.status_code} Response: {response.text}", type="warning")
+                    log(f"Failed to retrieve previous submission. Status Code: {submission_response.status_code} Response: {submission_response.text}", type="warning")
                     previous_grade = 0
 
                 # log(f"{previous_grade} < {GRADE} so {previous_grade < GRADE}", type="debug")
