@@ -44,15 +44,15 @@ The auto_grader should be a [submodule](https://git-scm.com/book/en/v2/Git-Tools
     git submodule add <This Repository SSH or HTTPS>
     git add -A # Stages all files (even untracked ones) for commit
     git commit -m "Adds auto grader submodule"
-    git push origin master
+    git push
 
 
 
 ### Initilize Auto Grader Files
 
-The auto grader nees several files in your solution repository's base folder to function properly. I have created a python function to automatically create these files in their proper location. To run that code
+The auto grader needs several files in your solution repository's base folder to function properly. I have created a python function to automatically create these files in their proper location. To run that code
 
-    python3
+    python
     >>> from auto_grader.DNE_AutoGrader import AutoGrader
     >>> AutoGrader.create_auto_grader_files()
 

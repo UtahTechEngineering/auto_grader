@@ -20,11 +20,11 @@ class AutoGraderParam:
     course_id = None 
 
     # Autograding parameters
-    iterations = 1e4
+    iterations = int(1e4)
     tolerance = 1e-10  # Tolerance for checking outputs
 
     # Markdown formatting parameters
-    total_average_report_blocks = 10
+    total_average_report_blocks = int(10)
 
     # Grade parameters
     late_penalty_per_day = 5.0  # Points lost per day late
