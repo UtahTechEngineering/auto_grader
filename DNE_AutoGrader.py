@@ -536,14 +536,15 @@ class AutoGrader():
 
                 if submission_response.status_code == 200:
                     submission = submission_response.json()
-                    previous_grade = float(submission.get('grade'))
+                    grade_value = submission.get('grade')
+                    previous_grade = float(grade_value) if grade_value is not None else 0.0  # or another default value
                     log(f"Previous submission grade: {previous_grade}")
                 else:
                     log(f"Failed to retrieve previous submission. Status Code: {submission_response.status_code} Response: {submission_response.text}", type="warning")
                     previous_grade = 0
 
                 # log(f"{previous_grade} < {GRADE} so {previous_grade < GRADE}", type="debug")
-                if previous_grade is not None and previous_grade > GRADE:
+                if previous_grade is not None and previous_grade >= GRADE:
                     log(f"Previous grade {previous_grade} is higher than the new grade {GRADE}. NOT posting the new grade.", type="warning")
                     continue
 
