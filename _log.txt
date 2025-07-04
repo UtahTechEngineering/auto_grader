@@ -1,0 +1,278 @@
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+⚠️ WARNING: This method is not for students. It will override important autograding files with junk data. If you accidentally run it then you need to use git to reset those files.
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+⚠️ WARNING: This method is not for students. It will override important autograding files with junk data. If you accidentally run it then you need to use git to reset those files.
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing CORRECT versions of classes and functions for grading...
+⚠️ WARNING: This method is not for students. It will override important autograding files with junk data. If you accidentally run it then you need to use git to reset those files.
+ℹ️ Info: Generating CHECK data for hw1...
+ℹ️ Info: 🎲 Generating 10000.0 random input sets...
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing CORRECT versions of classes and functions for grading...
+⚠️ WARNING: This method is not for students. It will override important autograding files with junk data. If you accidentally run it then you need to use git to reset those files.
+ℹ️ Info: Generating CHECK data for hw1...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'combined_functions' in class 'ClassToEvaluate' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw1_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw1...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'combined_functions' in class 'ClassToEvaluate' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw1_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw2...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'DoubleNumber' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw2_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw2...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'DoubleNumber' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw2_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw3...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double_number_function' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw3_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw3...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double_number_function' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw3_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw4...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw4_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw4...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw4_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw5...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw5_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw5...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw5_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw6...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw6_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw6...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw6_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw7...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw7_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw7...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw7_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw8...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw8_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw8...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw8_grader_data.csv
+ℹ️ Info: Generating CHECK data for hw9...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw9_checker_data.csv
+ℹ️ Info: Generating GRADE data for hw9...
+ℹ️ Info: 🎲 Generating 10000 random input sets...
+ℹ️ Info: Function 'double' in class 'Correct' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw9_grader_data.csv
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw1...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw1_checker_data.csv
+ℹ️ Info: Function 'combined_functions' in class 'ClassToEvaluate' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw1_test_data.csv
+ℹ️ Info: Grading hw1 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw1_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw1_checker_data.csv...
+ℹ️ Info: Grading hw1 completed.
+📝 Grade: ✅ 100.0
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw2...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw2_checker_data.csv
+ℹ️ Info: Function 'double' in class 'DoubleNumber' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw2_test_data.csv
+ℹ️ Info: Grading hw2 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw2_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw2_checker_data.csv...
+ℹ️ Info: Grading hw2 completed.
+📝 Grade: ✅ 100.0
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw3...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw3_checker_data.csv
+ℹ️ Info: Function 'double_number_function' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw3_test_data.csv
+ℹ️ Info: Grading hw3 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw3_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw3_checker_data.csv...
+ℹ️ Info: Grading hw3 completed.
+📝 Grade: ✅ 100.0
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+❌ ERROR: Error instantiating the class 'Incorrect' for assignment 'hw4'. Please check the class constructor. Error: 
+
+Traceback (most recent call last):
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_AutoGrader.py", line 312, in run_auto_gradeing
+    self.convert_objects_to_functions([a])
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_AutoGrader.py", line 74, in convert_objects_to_functions
+    instance = self.assignments[i].class_to_evaluate(**self.assignments[i].class_inputs)
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/primary/ConstructorError.py", line 9, in __init__
+    raise ValueError("This is an incorrect implementation of the double constructor.")
+ValueError: This is an incorrect implementation of the double constructor.
+
+📝 Grade: ❌ 0.0
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw5...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw5_checker_data.csv
+❌ ERROR: Function 'double' in class 'Incorrect' execution failed. Please check the function implementation. Error: 
+
+Traceback (most recent call last):
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_AutoGrader.py", line 123, in run_and_record
+    outputs = function_to_evaluate(**inputs)
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/primary/FunctionError.py", line 7, in double
+    raise ValueError("This is an incorrect implementation of the double function.")
+ValueError: This is an incorrect implementation of the double function.
+
+📝 Grade: ❌ 0.0
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw6...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw6_checker_data.csv
+❌ ERROR: Function 'double' in class 'Incorrect' returned 0 objects which does not match expected 1 objects.
+📝 Grade: ❌ 0.0
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw7...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw7_checker_data.csv
+❌ ERROR: Function 'double' output 0 ('b') shape does not match expected. Got an object with the shape (2, 1). Expected (1,).
+📝 Grade: ❌ 0.0
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw8...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw8_checker_data.csv
+ℹ️ Info: Function 'double' in class 'Incorrect' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw8_test_data.csv
+ℹ️ Info: Grading hw8 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw8_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw8_checker_data.csv...
+ℹ️ Info: Grading hw8 completed.
+📝 Grade: ❌ 15.110000000000001
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+ℹ️ Info: Generating TEST data for hw9...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw9_checker_data.csv
+ℹ️ Info: Function 'double' in class 'Incorrect' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw9_test_data.csv
+ℹ️ Info: Grading hw9 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw9_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_hw9_checker_data.csv...
+ℹ️ Info: Grading hw9 completed.
+📝 Grade: ❌ 19.99
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓: 
+ℹ️ Info: Importing INCORRECT versions of classes and functions for grading...
+⚠️ WARNING: This method is not for students. It runs when you push your code to Github. It will not run locally.
+ℹ️ Info: Generating TEST data for hw1...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw1_grader_data.csv
+ℹ️ Info: Function 'combined_functions' in class 'ClassToEvaluate' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw1_test_data.csv
+ℹ️ Info: Grading hw1 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw1_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw1_grader_data.csv...
+ℹ️ Info: Grading hw1 completed.
+📝 Grade: ✅ 100.0
+ℹ️ Info: Generating TEST data for hw2...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw2_grader_data.csv
+ℹ️ Info: Function 'double' in class 'DoubleNumber' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw2_test_data.csv
+ℹ️ Info: Grading hw2 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw2_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw2_grader_data.csv...
+ℹ️ Info: Grading hw2 completed.
+📝 Grade: ✅ 100.0
+ℹ️ Info: Generating TEST data for hw3...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw3_grader_data.csv
+ℹ️ Info: Function 'double_number_function' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw3_test_data.csv
+ℹ️ Info: Grading hw3 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw3_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw3_grader_data.csv...
+ℹ️ Info: Grading hw3 completed.
+📝 Grade: ✅ 100.0
+❌ ERROR: Error instantiating the class 'Incorrect' for assignment 'hw4'. Please check the class constructor. Error: 
+
+Traceback (most recent call last):
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_AutoGrader.py", line 312, in run_auto_gradeing
+    self.convert_objects_to_functions([a])
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_AutoGrader.py", line 74, in convert_objects_to_functions
+    instance = self.assignments[i].class_to_evaluate(**self.assignments[i].class_inputs)
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/primary/ConstructorError.py", line 9, in __init__
+    raise ValueError("This is an incorrect implementation of the double constructor.")
+ValueError: This is an incorrect implementation of the double constructor.
+
+📝 Grade: ❌ 0.0
+ℹ️ Info: Generating TEST data for hw5...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw5_grader_data.csv
+❌ ERROR: Function 'double' in class 'Incorrect' execution failed. Please check the function implementation. Error: 
+
+Traceback (most recent call last):
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/DNE_AutoGrader.py", line 123, in run_and_record
+    outputs = function_to_evaluate(**inputs)
+  File "/Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/primary/FunctionError.py", line 7, in double
+    raise ValueError("This is an incorrect implementation of the double function.")
+ValueError: This is an incorrect implementation of the double function.
+
+📝 Grade: ❌ 0.0
+ℹ️ Info: Generating TEST data for hw6...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw6_grader_data.csv
+❌ ERROR: Function 'double' in class 'Incorrect' returned 0 objects which does not match expected 1 objects.
+📝 Grade: ❌ 0.0
+ℹ️ Info: Generating TEST data for hw7...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw7_grader_data.csv
+❌ ERROR: Function 'double' output 0 ('b') shape does not match expected. Got an object with the shape (2, 1). Expected (1,).
+📝 Grade: ❌ 0.0
+ℹ️ Info: Generating TEST data for hw8...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw8_grader_data.csv
+ℹ️ Info: Function 'double' in class 'Incorrect' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw8_test_data.csv
+ℹ️ Info: Grading hw8 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw8_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw8_grader_data.csv...
+ℹ️ Info: Grading hw8 completed.
+📝 Grade: ❌ 14.85
+ℹ️ Info: Generating TEST data for hw9...
+ℹ️ Info: 📂 Loading inputs from previous file: /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw9_grader_data.csv
+ℹ️ Info: Function 'double' in class 'Incorrect' executed successfully.
+ℹ️ Info: Successfully saved data to /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw9_test_data.csv
+ℹ️ Info: Grading hw9 by evaluating /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/auto_grader/_hw9_test_data.csv against /Users/kameroneves/Documents/Utah Tech/Teaching/Classes/General/auto_grader_testing/_auto_grader_testing_private_data/_hw9_grader_data.csv...
+ℹ️ Info: Grading hw9 completed.
+📝 Grade: ❌ 20.0
+ℹ️ Info: Posting grade 100.0 for student 2104422 on assignment 16317962 ('hw1') in course 920329
+⚠️ WARNING: The assignment is 4 day(s) overdue (rounded up).
+⚠️ WARNING: Late penalty: 20.0 points
+⚠️ WARNING: New grade after applying late penalty: 80.0
+ℹ️ Info: Previous submission grade: 85.0
+⚠️ WARNING: Previous grade 85.0 is lower than the new grade 80.0. NOT posting the new grade.
+ℹ️ Info: Posting grade 100.0 for student 2104422 on assignment 16317985 ('hw2') in course 920329
+ℹ️ Info: The assignment is submitted before the due date.
+ℹ️ Info: Previous submission grade: 100.0
+ℹ️ Info: ✅ Grade successfully posted.
+ℹ️ Info: Posting grade 100.0 for student 2104422 on assignment 16325197 ('hw3') in course 920329
+ℹ️ Info: This assignment has no due date.
+ℹ️ Info: Previous submission grade: 100.0
+ℹ️ Info: ✅ Grade successfully posted.
+ℹ️ Info: Posting grade 0.0 for student 2104422 on assignment 16325199 ('hw4') in course 920329
+ℹ️ Info: This assignment has no due date.
+ℹ️ Info: Previous submission grade: 0.0
+ℹ️ Info: ✅ Grade successfully posted.
+ℹ️ Info: Posting grade 0.0 for student 2104422 on assignment 16325200 ('hw5') in course 920329
+ℹ️ Info: This assignment has no due date.
+ℹ️ Info: Previous submission grade: 0.0
+ℹ️ Info: ✅ Grade successfully posted.
+ℹ️ Info: Posting grade 0.0 for student 2104422 on assignment 16325201 ('hw6') in course 920329
+ℹ️ Info: This assignment has no due date.
+ℹ️ Info: Previous submission grade: 0.0
+ℹ️ Info: ✅ Grade successfully posted.
+ℹ️ Info: Posting grade 0.0 for student 2104422 on assignment 16325255 ('hw7') in course 920329
+ℹ️ Info: This assignment has no due date.
+ℹ️ Info: Previous submission grade: 0.0
+ℹ️ Info: ✅ Grade successfully posted.
+ℹ️ Info: Posting grade 14.85 for student 2104422 on assignment 16325256 ('hw8') in course 920329
+ℹ️ Info: This assignment has no due date.
+ℹ️ Info: Previous submission grade: 20.09
+⚠️ WARNING: Previous grade 20.09 is lower than the new grade 14.85. NOT posting the new grade.
+ℹ️ Info: Posting grade 20.0 for student 2104422 on assignment 16325257 ('hw9') in course 920329
+ℹ️ Info: This assignment has no due date.
+ℹ️ Info: Previous submission grade: 19.99
+ℹ️ Info: ✅ Grade successfully posted.
