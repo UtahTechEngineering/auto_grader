@@ -454,7 +454,7 @@ class AutoGrader():
                 student_id_series = df.loc[df['github_username'] == args.github_actor, 'canvas_student_id']
                 if student_id_series.empty:
                     log(f"No Canvas Student ID found for Github user {args.github_actor}. Please confirm you submitted the correct Github username to Canvas.", type="error")
-                    exit(1)
+                    raise
                 student_id = int(student_id_series.iloc[0])
             except:
                 log(f"Error reading the roster file {self.roster_file}. Please ensure the '_roster.csv' file exists and is formatted correctly.", type="error")
