@@ -544,7 +544,7 @@ class AutoGrader():
 
                 # log(f"{previous_grade} < {GRADE} so {previous_grade < GRADE}", type="debug")
                 if previous_grade is not None and previous_grade > GRADE:
-                    log(f"Previous grade {previous_grade} is lower than the new grade {GRADE}. NOT posting the new grade.", type="warning")
+                    log(f"Previous grade {previous_grade} is higher than the new grade {GRADE}. NOT posting the new grade.", type="warning")
                     continue
 
                 # -------------------------------
