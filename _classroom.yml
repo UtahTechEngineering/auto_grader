@@ -1,0 +1,67 @@
+name: Run Grader and Post Feedback
+
+on:
+  push:
+    branches:
+      - main  # or the default branch used for student submissions
+
+jobs:
+  grade-and-comment:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt || true
+
+    - name: Run grading script
+      id: run_grader
+      run: |
+        python generate_feedback.py > output.txt
+        echo "GRADE_OUTPUT<<EOF" >> $GITHUB_ENV
+        cat output.txt >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Find Feedback PR
+      id: find_pr
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { data: pulls } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: "open",
+          });
+
+          const feedbackPR = pulls.find(pr => pr.title.startsWith("Feedback"));
+
+          if (feedbackPR) {
+            core.setOutput("pr_number", feedbackPR.number);
+          } else {
+            core.setFailed("No Feedback pull request found.");
+          }
+
+    - name: Comment on Feedback PR
+      if: success()
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = process.env.GRADE_OUTPUT;
+          const prNumber = core.getInput('pr_number') || "${{ steps.find_pr.outputs.pr_number }}";
+
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber,
+            body: `📝 **Automated Feedback**\n\n\`\`\`\n${output}\n\`\`\``
+          });
