@@ -198,7 +198,7 @@ Then from your project root directory you can do as you tpycially would
 
 Create two [Github orginization wide action secretes](https://docs.github.com/en/actions/how-tos/security-for-github-actions/security-guides/using-secrets-in-github-actions).
 - `CANVAS_API_TOKEN` - Generate an API token following [these instructions](https://community.canvaslms.com/t5/Canvas-Basics-Guide/How-do-I-manage-API-access-tokens-in-my-user-account/ta-p/615312) and save it in this Github secret.
-- `GITHUB_PAT` - Generate a fine-grained Personal Access Token (PAT) following [these instructions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and save it in this Github secret. Your token needs the following access:
+- `PAT` - Generate a fine-grained Personal Access Token (PAT) following [these instructions](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and save it in this Github secret. Your token needs the following access:
 
     - Access to all repositories in your orginization.
     - No orginization permissions
