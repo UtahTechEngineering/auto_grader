@@ -81,7 +81,7 @@ def log(message: str, type: str = "info"):
             # get file path
             current_file_path = os.path.abspath(__file__)
             current_dir = os.path.dirname(current_file_path)
-            root_dir = os.path.dirname(current_file_path)
+            root_dir = os.path.dirname(current_dir)
             filepath = os.path.join(root_dir,"_log.txt")
 
             # Get the current log file content
