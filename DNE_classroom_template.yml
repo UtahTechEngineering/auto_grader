@@ -10,31 +10,52 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout student repository
       uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+        token: ${{ secrets.PAT }}
+
+    - name: Checkout private data repo
+      uses: actions/checkout@v4
+      with:
+        repository: UtahTechEngineering/_auto_grader_testing_private_data
+        token: ${{ secrets.PAT }} # `PAT` is a secret that contains your PAT
+        path: _auto_grader_testing_private_data
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
+    
+    - name: Print file structure
+      id: file_structure
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "File structure:"
+        tree
+      shell: bash
+    - name: Dump file structure
+      run: echo "${{ steps.file_structure.outputs.tree }}"
 
     - name: Install dependencies
+      # working-directory: .
       run: |
         pip install -r requirements.txt || true
 
     - name: Run grading script
       id: run_grader
       run: |
-        python generate_feedback.py > output.txt
+        python DNE_github_grade_on_push.py --github_actor ${{ github.actor }} --canvas_api_token ${{ secrets.CANVAS_API_TOKEN }}
         echo "GRADE_OUTPUT<<EOF" >> $GITHUB_ENV
-        cat output.txt >> $GITHUB_ENV
+        cat auto_grader/_pull_request_comment.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - name: Find Feedback PR
       id: find_pr
       uses: actions/github-script@v7
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.PAT }}
         script: |
           const { data: pulls } = await github.rest.pulls.list({
             owner: context.repo.owner,
@@ -54,7 +75,7 @@ jobs:
       if: success()
       uses: actions/github-script@v7
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.PAT }}
         script: |
           const output = process.env.GRADE_OUTPUT;
           const prNumber = core.getInput('pr_number') || "${{ steps.find_pr.outputs.pr_number }}";
@@ -63,5 +84,5 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: prNumber,
-            body: `📝 **Automated Feedback**\n\n\`\`\`\n${output}\n\`\`\``
+            body: `${output}`
           });
