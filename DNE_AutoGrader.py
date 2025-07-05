@@ -53,11 +53,12 @@ class AutoGrader():
             path_to_this_folder = os.path.dirname(current_file_path)
             path_to_root_folder = os.path.dirname(path_to_this_folder)
             private_data_folder = "_" + os.path.basename(path_to_root_folder) + "_private_data"
-            self.auto_grader_file_path = os.path.join(path_to_root_folder, "auto_grader")
+            public_data_folder = os.path.basename(path_to_root_folder) + "_public_data"
+            self.public_data_file_path = os.path.join(path_to_root_folder, public_data_folder)
             self.private_data_file_path = os.path.join(path_to_root_folder, private_data_folder)
 
-            self.log_file = os.path.join(self.auto_grader_file_path,"_log.txt")
-            self.markdown_file = os.path.join(self.auto_grader_file_path, "_pull_request_comment.md")
+            self.log_file = os.path.join(self.public_data_file_path,"_log.txt")
+            self.markdown_file = os.path.join(self.public_data_file_path, "_pull_request_comment.md")
             self.roster_file = os.path.join(self.private_data_file_path, '_roster.csv')
 
             self.create_pull_request_comment = False
@@ -324,9 +325,9 @@ class AutoGrader():
                 test_file_name = f"_{assignment_title}_test_data.csv"
                 
                 # Create the full file paths
-                check_file_path = os.path.join(self.auto_grader_file_path, check_file_name)
+                check_file_path = os.path.join(self.public_data_file_path, check_file_name)
                 grade_file_path = os.path.join(self.private_data_file_path, grade_file_name)
-                test_file_path = os.path.join(self.auto_grader_file_path, test_file_name)
+                test_file_path = os.path.join(self.public_data_file_path, test_file_name)
 
                 if check_or_grade == "check":
                     comparison_file = check_file_path
@@ -384,9 +385,9 @@ class AutoGrader():
                 # test_file_name = f"{assignment_title}_test_data.csv"
                 
                 # Create the full file paths
-                check_file_path = os.path.join(self.auto_grader_file_path, check_file_name)
+                check_file_path = os.path.join(self.public_data_file_path, check_file_name)
                 grade_file_path = os.path.join(self.private_data_file_path, grade_file_name)
-                # test_file_path = os.path.join(self.auto_grader_file_path, test_file_name)
+                # test_file_path = os.path.join(self.public_data_file_path, test_file_name)
 
                 log(f"Generating CHECK data for {self.assignments[a].title}...")
                 error_string = self.run_and_record(a, check_file_path)
@@ -727,8 +728,11 @@ class AutoGrader():
             # Get the current file path
             auto_grader_path = os.path.dirname(os.path.abspath(__file__))
             root_file_path = os.path.dirname(auto_grader_path)
-            private_data_folder = "_" + os.path.basename(root_file_path) + "_private_data"
+            root_folder_name = os.path.basename(root_file_path)
+            private_data_folder = "_" + root_folder_name + "_private_data"
+            public_data_folder = root_folder_name + "_public_data"
             private_data_path = os.path.join(root_file_path, private_data_folder)
+            public_data_path = os.path.join(root_file_path, public_data_folder)
             workflow_file_path = os.path.join(root_file_path, ".github", "workflows")
 
             # ---------------------------------------------------------------
@@ -738,6 +742,8 @@ class AutoGrader():
             # Create the private grader folder if it does not exist
             if not os.path.exists(private_data_path):
                 os.makedirs(private_data_path)
+            if not os.path.exists(public_data_folder):
+                os.makedirs(public_data_folder)
 
             # Create the roster file if it does not exist
             roster_file = os.path.join(private_data_folder, "_roster.csv")
@@ -768,13 +774,13 @@ class AutoGrader():
                         print(line, file=f)
 
             # Initilize the assignment info file if it does not exist
-            assignment_info_template_file = os.path.join(auto_grader_path, "_assignment_info_template.py")
+            assignment_info_template_file = os.path.join(auto_grader_path, "DNE_assignment_info_template.py")
             assignment_info_file = os.path.join(root_file_path, "DNE_assignment_info.py")
             if not os.path.exists(assignment_info_file) or overwrite:
                 shutil.copy(assignment_info_template_file, assignment_info_file)
 
             # Initilize the workflow file if it does not exist
-            provided_file = os.path.join(auto_grader_path, "_classroom.yml")
+            provided_file = os.path.join(auto_grader_path, "DNE_classroom_template.yml")
             installed_file = os.path.join(workflow_file_path, "classroom.yml")
             if not os.path.exists(workflow_file_path):
                 os.makedirs(workflow_file_path)
@@ -782,7 +788,7 @@ class AutoGrader():
                 shutil.copy(provided_file, installed_file)
 
             # Initilize the requirements file if it does not exist
-            provided_file = os.path.join(auto_grader_path, "_requirements.txt")
+            provided_file = os.path.join(auto_grader_path, "DNE_requirements_template.txt")
             installed_file = os.path.join(root_file_path, "requirements.txt")
             if not os.path.exists(installed_file) or overwrite:
                 shutil.copy(provided_file, installed_file)

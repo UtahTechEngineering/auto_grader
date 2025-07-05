@@ -63,7 +63,9 @@ This will initilize the following files
 - `_create_assignment_files.py` - A file we'll use later in the setup process to generate the files students will run to check their code and CSVs that store the expected output of the student's code.
 - `DNE_assignment_info.py` - A file that contains settings and details for each assignment (you can have multiple assignments in each repository)
 - `DNE_github_grade_on_push.py` - A file that Github will run to send grades to Canvas.
-- `_<folder name of your repository's root>_private_data/_roster.csv` - A file used to corrilate the students Github user names with their Canvas API ID. Students will not have access to this file.
+- `_<root>_private_data/_roster.csv` - A file used to corrilate the students Github user names with their Canvas API ID. Students will not have access to this file.
+
+**Note:** Throughout this README I refer to the name of the base folder for your repository as `<root>`. 
 
 This will not overwrite these files if they already exist. If you would like to overwrite then you need to set the `overwrite` optional input to the `create_auto_grader_files` method to `True`. Just be aware this will delete your roster and assignment settings.
 
@@ -102,9 +104,9 @@ Fill in the following information in the file `DNE_assignment_info.py`.
 
 All of these variables are used to create an `Assignment` object which is then appended to the list `assignment`. This list of assignments is then input into the the `AutoGrader` constructor along with the `AutoGraderParam` variable `Param`. You can append as many assignments to the assignment list as you would like. Create each assignmnet in the same way as described above. `Param` stores the settings which should apply to all assignments. Each time the autograder is used, this script is run and the `auto_grader` variable of type `AutoGrader` is imported. 
 
-You also need to set up the `_<folder name of your repository's root>_private_data/_roster.csv` file. To do this you need the Github username for each student and the Canvas Student ID for each student. Notably, this is not your institution student ID. Canvas assigns an ID to each student. Like the course ID the student ID can be found by navigating to `Grades` tab, clicking on a student name, clicking on their name again in the tab that appears, and looking at the URL. The student ID is the number at the end. However, in a large class I suggest creating an quiz (I suggest making it a survey so credit can be given for completion) with a single essay question asking students to type in their Github Username. Tell the students to make sure it is typed correctly (spelling, case, and no extra white space). Then download their answers by clicking `Student Analysis` in the `Statistics` tab of the survey. The Canvas student ID is the ID column of the generated CSV. The Github usernames are also list in this CSV. So you can copy both over to the appropriate column of the roster `_<folder name of your repository's root>_private_data/_roster.csv`.
+You also need to set up the `_<root>_private_data/_roster.csv` file. To do this you need the Github username for each student and the Canvas Student ID for each student. Notably, this is not your institution student ID. Canvas assigns an ID to each student. Like the course ID the student ID can be found by navigating to `Grades` tab, clicking on a student name, clicking on their name again in the tab that appears, and looking at the URL. The student ID is the number at the end. However, in a large class I suggest creating an quiz (I suggest making it a survey so credit can be given for completion) with a single essay question asking students to type in their Github Username. Tell the students to make sure it is typed correctly (spelling, case, and no extra white space). Then download their answers by clicking `Student Analysis` in the `Statistics` tab of the survey. The Canvas student ID is the ID column of the generated CSV. The Github usernames are also list in this CSV. So you can copy both over to the appropriate column of the roster `_<root>_private_data/_roster.csv`.
 
-Finally, open the file `.github/workflows/classroom.yml` and find the comment `# private grader repository goes here`. Put the following there: `<your orginization name>/_<folder name of your repository's root>_private_data`
+Finally, open the file `.github/workflows/classroom.yml` and find the comment `# private grader repository goes here`. Put the following there: `<your orginization name>/_<root>_private_data`
 
 #### Tips for Setting Up Assignmnets
 
@@ -121,7 +123,7 @@ The `AutoGraderParam` class also has several other global settings you can adjus
 - `total_average_report_blocks` - When the code is posted to Canvas a comment is added to a pull request on Github called `Feedback`. This comment gives details about the autograder's results. This includes a table listing each output and if it was correct or not. In my work, it is common for some outputs to begin correct, but then slowly diverge from the solution (i.e. persistant variables). So it is useful to debugging to see how the error changes over time. To that end I added a plot of sorts. It is a colored line for each output. Green represents an correct output and red represents an incorrect output. The darker the shade of red the larger the error is. The line is broken into `total_average_report_blocks` segments. So each segment represents the total error over `iterations/total_average_report_blocks` test cases. The default is `10`. Note that adding too many segments (i.e. blocks) may make this portion of the pull request comment difficult to read.
 - `late_penalty_per_day` and `late_penalty_floor` - The late penalty functionality works identical to Canvas's built in late penatley. If the submission is late then `NEW_GRADE = max(late_penalty_floor, GRADE - late_penalty_per_day * days_late)`. However, I am not a fan of how Canvas allows the grade to decrease on future submissions. So if the new grade (after the late penalty if there is one) is lower than the original grade then the original grade is kept.
 
-The autograder prints a detailed log of its process. It also prints that log to the file `auto_grader/_log.txt`. It stores 1,000 lines of the log before deleting the oldest lines. You are welcome to `from auto_grader.DNE_log import log` to use this logging capablity elsewhere. The syntax is `log(message, type=type_string)`. The variable `type_string` is allowed to be
+The autograder prints a detailed log of its process. It also prints that log to the file `<root>_public_data/_log.txt`. It stores 1,000 lines of the log before deleting the oldest lines. You are welcome to `from auto_grader.DNE_log import log` to use this logging capablity elsewhere. The syntax is `log(message, type=type_string)`. The variable `type_string` is allowed to be
 - `"info"`
 - `"debug"`
 - `"grade"`
@@ -132,8 +134,8 @@ Each of these is formated slightly differently (i.e. an identifying prefix appli
 
 You can also set some settings for the logger. These are intended to be edited less frequently (if at all). So you have to edit the file `auto_grader/DNE_log.py`. The settings are
 
-- `print_to_log_file` - Weather or not to print to the `auto_grader/_log.txt` file.
-- `print_to_console` - Weather or not to print to the console. Note that disabling this will make it hard to see what happened in Github's logs because, as things stand now, the `auto_grader/_log.txt` file is not saved after a github run.
+- `print_to_log_file` - Weather or not to print to the `<root>_public_data/_log.txt` file.
+- `print_to_console` - Weather or not to print to the console. Note that disabling this will make it hard to see what happened in Github's logs because, as things stand now, the `<root>_public_data/_log.txt` file is not saved after a github run.
 - `print_info` - Weather or not to print the `"info"` type.
 - `print_debug` - Weather or not to print the `"debug"` type.
 - `print_warning` - Weather or not to print the `"warning"` type.
@@ -151,8 +153,8 @@ Now that the assignment information is input we can intilize the assignment file
 
 This will create the following files
 
-- `_<folder name of your repository's root>_private_data/_<assignment title>_grader_data.csv` - These files contain all of the secret test data that *Github* will use to check the students work. It is essential a list of correct input/output pairs. Students *will not* have access to these files.
-- `auto_grader/DNE_<assignment title>_checker_data.csv` - These files contain all of the test data that *students* will use to check their work. It is essential a list of correct input/output pairs. Students *will* have access to these files. By keeping two sets of input/output test data, one secret one not, students are able to check their work, but won't be able to see the data their grade is based on. This discurages students from simply writing code to pull the correct output from the data file.
+- `_<root>_private_data/_<assignment title>_grader_data.csv` - These files contain all of the secret test data that *Github* will use to check the students work. It is essential a list of correct input/output pairs. Students *will not* have access to these files.
+- `<root>_public_data/DNE_<assignment title>_checker_data.csv` - These files contain all of the test data that *students* will use to check their work. It is essential a list of correct input/output pairs. Students *will* have access to these files. By keeping two sets of input/output test data, one secret one not, students are able to check their work, but won't be able to see the data their grade is based on. This discurages students from simply writing code to pull the correct output from the data file.
 - `DNE_<assignment title>_check.py` - These file are the files students will run to test their code locally (before pushing to Github and Canvas).
 
 The check and grade CSVs are always overwritten. If you would like to overwrite the check python files then you need to set the `overwrite` optional input to the `create_assignment_files` method to `True`. This can be done in the `_create_assignment_files.py` file.
@@ -165,25 +167,15 @@ Everything is now setup and you should be able to run the autograder. To test it
 
 Now that everything works we should save it all in Git.
 
-First, the autograder must be on a branch to avoid merge issues (see [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules#Working_on_a_Submodule) for more details). 
-
-    cd auto_grader
-    git branch local
-    git checkout local
-    git add -A # Stages all files (even untracked ones) for commit
-    git commit -m "Local version of auto grader"
-
 Now you can update the auto_grader using
 
     # From the root repository
     git submodule update --remote --merge 
-    # OR from the auto_grader folder 
-    git checkout main
-    git pull
-    git checkout local
-    git merge main
 
-If you merge a development branch into main and push you can also contribute to the auto grader this way.
+    # OR from the auto_grader folder 
+    git pull
+
+You can also contribute to the auto grader using `git push`.
 
 Then from your project root directory you can do as you tpycially would
 
@@ -191,6 +183,8 @@ Then from your project root directory you can do as you tpycially would
     git commit -m "adds auto grader"
     git pull
     git push
+
+You do need to commmit (i.e. for the auto_grader pull wich also commits) both the auto_grader and the main solution repository.
 
 **Note:** Becasue we have moved/created some files out of the autograder, they are no longer tracked in the git submodule. If you pull changes to the auto grader that change these files (or how they are created in the autograder), then you need to copy them over again. This can be done by using the `overwrite` flag in the `create_auto_grader_files` and the `create_assignment_files` methods. Just be aware this will delete your roster and assignment settings.
 
@@ -210,23 +204,22 @@ Create two [Github orginization wide action secretes](https://docs.github.com/en
 
 You will need two forks of your main solution repository. They need to be named as follows
 
-- `_<folder name of your repository's root>_private_data` - In this fork delete everything except the contents of the `_<folder name of your repository's root>_private_data` folder. Move those contents so that they are in the root directory. There should be no folders in this repository.
-- `<folder name of your repository's root>_skeleton` - Make this repository a [template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository) repository in the Github settings. In this fork delete the following
+- `_<root>_private_data` - In this fork delete everything except the contents of the `_<root>_private_data` folder. Move those contents so that they are in the root directory. There should be no folders in this repository.
+- `<root>_skeleton` - Make this repository a [template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository) repository in the Github settings. In this fork delete the following
     - All solutions that you want the students to complete (it might be good to mark these areas with comments)
     - All files with an underscore before them.
         - `_create_assignment_files.py`
-        - `auto_grader/_log.txt`
-        - `auto_grader/_pull_request_comment.md`
-        - `auto_grader/_assignment_info_template.py`
-        - `auto_grader/_classroom.yml`
-        - `auto_grader/_requirements.txt`
-        - All `auto_grader/_<assignment title>_test_data.csv` files
-        - The entire `_<folder name of your repository's root>_private_data` folder.
+        - `<root>_public_data/_log.txt`
+        - `<root>_public_data/_pull_request_comment.md`
+        - All `<root>_public_data/_<assignment title>_test_data.csv` files
+        - The entire `_<root>_private_data` folder.
 
 You can fork on Github using [these instructions](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo). You can then make the required changes by using
 
     git clone <Forked Repository URL>
-    # Make the changes as you normally would (e.g. in visual studio code)
+    # Make the changes
+    git rm <path to file> # To delete files
+    git mv <start file path> <end file path> # To ove files 
     git add -A # Stages all files (even untracked ones) for commit
     git commit -m "Removes unnesisary files"
     git push
