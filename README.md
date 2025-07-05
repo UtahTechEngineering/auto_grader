@@ -123,7 +123,7 @@ The `AutoGraderParam` class also has several other global settings you can adjus
 - `total_average_report_blocks` - When the code is posted to Canvas a comment is added to a pull request on Github called `Feedback`. This comment gives details about the autograder's results. This includes a table listing each output and if it was correct or not. In my work, it is common for some outputs to begin correct, but then slowly diverge from the solution (i.e. persistant variables). So it is useful to debugging to see how the error changes over time. To that end I added a plot of sorts. It is a colored line for each output. Green represents an correct output and red represents an incorrect output. The darker the shade of red the larger the error is. The line is broken into `total_average_report_blocks` segments. So each segment represents the total error over `iterations/total_average_report_blocks` test cases. The default is `10`. Note that adding too many segments (i.e. blocks) may make this portion of the pull request comment difficult to read.
 - `late_penalty_per_day` and `late_penalty_floor` - The late penalty functionality works identical to Canvas's built in late penatley. If the submission is late then `NEW_GRADE = max(late_penalty_floor, GRADE - late_penalty_per_day * days_late)`. However, I am not a fan of how Canvas allows the grade to decrease on future submissions. So if the new grade (after the late penalty if there is one) is lower than the original grade then the original grade is kept.
 
-The autograder prints a detailed log of its process. It also prints that log to the file `<root>_public_data/_log.txt`. It stores 1,000 lines of the log before deleting the oldest lines. You are welcome to `from auto_grader.DNE_log import log` to use this logging capablity elsewhere. The syntax is `log(message, type=type_string)`. The variable `type_string` is allowed to be
+The autograder prints a detailed log of its process. It also prints that log to the file `_log.txt`. It stores 1,000 lines of the log before deleting the oldest lines. You are welcome to `from auto_grader.DNE_log import log` to use this logging capablity elsewhere. The syntax is `log(message, type=type_string)`. The variable `type_string` is allowed to be
 - `"info"`
 - `"debug"`
 - `"grade"`
@@ -134,8 +134,8 @@ Each of these is formated slightly differently (i.e. an identifying prefix appli
 
 You can also set some settings for the logger. These are intended to be edited less frequently (if at all). So you have to edit the file `auto_grader/DNE_log.py`. The settings are
 
-- `print_to_log_file` - Weather or not to print to the `<root>_public_data/_log.txt` file.
-- `print_to_console` - Weather or not to print to the console. Note that disabling this will make it hard to see what happened in Github's logs because, as things stand now, the `<root>_public_data/_log.txt` file is not saved after a github run.
+- `print_to_log_file` - Weather or not to print to the `_log.txt` file.
+- `print_to_console` - Weather or not to print to the console. Note that disabling this will make it hard to see what happened in Github's logs because, as things stand now, the `_log.txt` file is not saved after a github run.
 - `print_info` - Weather or not to print the `"info"` type.
 - `print_debug` - Weather or not to print the `"debug"` type.
 - `print_warning` - Weather or not to print the `"warning"` type.
@@ -209,8 +209,8 @@ You will need two forks of your main solution repository. They need to be named 
     - All solutions that you want the students to complete (it might be good to mark these areas with comments)
     - All files with an underscore before them.
         - `_create_assignment_files.py`
-        - `<root>_public_data/_log.txt`
-        - `<root>_public_data/_pull_request_comment.md`
+        - `_log.txt`
+        - `_pull_request_comment.md`
         - All `<root>_public_data/_<assignment title>_test_data.csv` files
         - The entire `_<root>_private_data` folder.
 

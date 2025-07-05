@@ -57,8 +57,8 @@ class AutoGrader():
             self.public_data_file_path = os.path.join(path_to_root_folder, public_data_folder)
             self.private_data_file_path = os.path.join(path_to_root_folder, private_data_folder)
 
-            self.log_file = os.path.join(self.public_data_file_path,"_log.txt")
-            self.markdown_file = os.path.join(self.public_data_file_path, "_pull_request_comment.md")
+            self.log_file = os.path.join(path_to_root_folder,"_log.txt")
+            self.markdown_file = os.path.join(path_to_root_folder, "_pull_request_comment.md")
             self.roster_file = os.path.join(self.private_data_file_path, '_roster.csv')
 
             self.create_pull_request_comment = False
