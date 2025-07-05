@@ -32,7 +32,7 @@ jobs:
     - name: Checkout private data repo
       uses: actions/checkout@v4
       with:
-        repository: UtahTechEngineering/_auto_grader_testing_private_data
+        repository: <your orginization name>/_<root>_private_data # private grader repository goes here
         token: ${{ secrets.GH_PAT }} # `PAT` is a secret that contains your PAT
         path: _auto_grader_testing_private_data
 
@@ -61,7 +61,7 @@ jobs:
       run: |
         python DNE_github_grade_on_push.py --github_actor ${{ github.actor }} --canvas_api_token ${{ secrets.CANVAS_API_TOKEN }}
         echo "GRADE_OUTPUT<<EOF" >> $GITHUB_ENV
-        cat auto_grader/_pull_request_comment.md >> $GITHUB_ENV
+        cat _pull_request_comment.md >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - name: Find Feedback PR
