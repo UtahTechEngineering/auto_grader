@@ -124,12 +124,14 @@ The `AutoGraderParam` class also has several other global settings you can adjus
 - `late_penalty_per_day` and `late_penalty_floor` - The late penalty functionality works identical to Canvas's built in late penatley. If the submission is late then `NEW_GRADE = max(late_penalty_floor, GRADE - late_penalty_per_day * days_late)`. However, I am not a fan of how Canvas allows the grade to decrease on future submissions. So if the new grade (after the late penalty if there is one) is lower than the original grade then the original grade is kept.
 
 The autograder prints a detailed log of its process. It also prints that log to the file `_log.txt`. It stores 1,000 lines of the log before deleting the oldest lines. You are welcome to `from auto_grader.DNE_log import log` to use this logging capablity elsewhere. The syntax is `log(message, type=type_string)`. The variable `type_string` is allowed to be
+
 - `"info"`
 - `"debug"`
 - `"grade"`
 - `"warning"`
 - `"error"`
 - `"break"`
+
 Each of these is formated slightly differently (i.e. an identifying prefix applied). `message` should be a string unless you are using the `"grade"` type. Then it should be a number. The `message` for the `"break"` type is ignored. Instead a line of arrows is printed to seperate the log into chunks. This is done everytime the logger is imported (i.e. the start of a logging session).
 
 You can also set some settings for the logger. These are intended to be edited less frequently (if at all). So you have to edit the file `auto_grader/DNE_log.py`. The settings are
@@ -165,26 +167,14 @@ Everything is now setup and you should be able to run the autograder. To test it
 
 ### Commit Changes
 
-Now that everything works we should save it all in Git.
-
-Now you can update the auto_grader using
-
-    # From the root repository
-    git submodule update --remote --merge 
-
-    # OR from the auto_grader folder 
-    git pull
-
-You can also contribute to the auto grader using `git push`.
-
-Then from your project root directory you can do as you tpycially would
+Now that everything works we should save it all in Git. From your project root directory you can do as you tpycially would
 
     git add -A # Stages all files (even untracked ones) for commit
     git commit -m "adds auto grader"
     git pull
     git push
 
-You do need to commmit (i.e. for the auto_grader pull wich also commits) both the auto_grader and the main solution repository.
+You can treat the submodule `auto_grader` repsoitory as another file you need to commit. 
 
 **Note:** Becasue we have moved/created some files out of the autograder, they are no longer tracked in the git submodule. If you pull changes to the auto grader that change these files (or how they are created in the autograder), then you need to copy them over again. This can be done by using the `overwrite` flag in the `create_auto_grader_files` and the `create_assignment_files` methods. Just be aware this will delete your roster and assignment settings.
 
@@ -244,7 +234,16 @@ Do copy only the default branch.
 
 Select custom YAML
 
-Select all files labeled as DNE in the protected file paths section. 
+Select the following files as protected file paths
+
+- `auto_grader_testing_public_data/DNE_*`
+- `.github/**/*`
+- `.gitmodules`
+- `auto_grader/*`
+- `DNE_*`
+- `requirements.txt`
+
+Select  in the protected file paths section. Also add `.github/**/*` as a protected file path. `.gitmodules`
 
 **Enable the Feedback Pull Request**
 
@@ -259,6 +258,38 @@ If you need to update an assignment you would follow this work flow:
 3. Make the same changes in the assignment fork of the template. Github Classrooms does this annoying thing where it creates a fork of the template that has a diconnected history. So you need to find the template fork (avlaible from the assignment page on Github classrooms) and make the changes manually a second time. You might be able to do this by cloning the template fork and rebasing any changes. I haven't experimented with it.
 4. On the Github classroom page click `Sync Assignments` to create a pull request on each students version of the homework repository. 
 5. Tell the students to merge the pull request.
+
+Now you can update the auto_grader using
+
+    # From the root repository
+    git submodule update --remote --merge 
+
+    # OR from the auto_grader folder 
+    git pull
+
+You can also contribute to the auto grader using `git push`.
+
+## Student Ussage
+
+Usage is pretty simple for the students. They will:
+
+1. Click the link you give them and choose themself from the course list. This will create a starting repo.
+2. Clone the repository.
+3. Make changes locally.
+4. Check the changes by running the appropriate checker file.
+5. Commit and push the changes to GitHub
+6. View thier grade on the pull request comment and/or Canvas
+
+The biggest gotcha is that students need to initilize the autograder submodule after cloning. So in summary the terminal commands usually used by students are:
+
+    git clone <repository>
+    git submodule init
+    git submodule update
+    # Make changes and do the homework
+    git add -A
+    git commit -m "Competes a homework assignment"
+    git push
+
 
 
 ## Security

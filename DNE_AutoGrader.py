@@ -52,8 +52,8 @@ class AutoGrader():
             current_file_path = os.path.abspath(__file__)
             path_to_this_folder = os.path.dirname(current_file_path)
             path_to_root_folder = os.path.dirname(path_to_this_folder)
-            private_data_folder = "_" + os.path.basename(path_to_root_folder) + "_private_data"
-            public_data_folder = os.path.basename(path_to_root_folder) + "_public_data"
+            private_data_folder = "_" + self.Param.repo_name + "_private_data"
+            public_data_folder = self.Param.repo_name + "_public_data"
             self.public_data_file_path = os.path.join(path_to_root_folder, public_data_folder)
             self.private_data_file_path = os.path.join(path_to_root_folder, private_data_folder)
 
@@ -716,7 +716,7 @@ class AutoGrader():
             return input_sets, input_labels, output_labels
 
         @staticmethod
-        def create_auto_grader_files(overwrite: bool = False):
+        def create_auto_grader_files(repo_name: str = None, overwrite: bool = False):
             """
             Create the necessary files for the auto grader to work.
             This includes the private grader folder and the roster file.
@@ -728,7 +728,10 @@ class AutoGrader():
             # Get the current file path
             auto_grader_path = os.path.dirname(os.path.abspath(__file__))
             root_file_path = os.path.dirname(auto_grader_path)
-            root_folder_name = os.path.basename(root_file_path)
+            if repo_name is None:
+                root_folder_name = os.path.basename(root_file_path)
+            else:
+                root_folder_name = repo_name
             private_data_folder = "_" + root_folder_name + "_private_data"
             public_data_folder = root_folder_name + "_public_data"
             private_data_path = os.path.join(root_file_path, private_data_folder)

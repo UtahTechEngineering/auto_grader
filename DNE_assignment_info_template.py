@@ -23,6 +23,7 @@ assignments = []
 
 Param = AutoGraderParam()
 Param.course_id = 0 # Replace with your course ID
+Param.repo_name = "" # Replace with your course repository name
 
 # --------------------------------------------------------------------------
 # Assignment 1 Assignment Information
