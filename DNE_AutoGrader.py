@@ -208,7 +208,7 @@ class AutoGrader():
                 # If the function executed successfully, log the success
                 log(f"Function '{function_to_evaluate.__name__}'{class_text} executed successfully.")
 
-                # Save the input and output data to a CSV file
+                # Save the input and output data to a pickel file
                 self.save_data_to_pkl(assignment.class_inputs, input_sets, output_sets, output_data_file)
 
                 # Log the successful save
@@ -218,7 +218,7 @@ class AutoGrader():
         
         def grade_file(self, comparison_file: str, test_file: str, tolerance: float) -> tuple[float, list[str], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
-            # Load the CSV files
+            # Load the pickel files
             _compare_class_inputs, _compare_input_sets, compare_output_sets = self.load_data_from_pkl(comparison_file)
             _test_class_inputs,    _test_input_sets,    test_output_sets    = self.load_data_from_pkl(      test_file)
     
@@ -727,7 +727,7 @@ class AutoGrader():
                 with open(data_file, "rb") as f:
                     data = pickle.load(f)
             except FileNotFoundError:
-                log(f"CSV file {csv_file} not found. Please ensure the file exists and is in the correct format.", type="error")
+                log(f"Pickel file {data_file} not found. Please ensure the file exists and is in the correct format.", type="error")
                 return {}, [], []
             
             # Confrim the data is formatted correctly
