@@ -50,10 +50,6 @@ class AutoGrader():
             # Save parameters
             self.Param = Param
 
-            # Support for required modules for unpickling
-            self.required_modules = getattr(self.Param, 'required_modules', None)
-            self.import_modules()
-
             # Get file paths
             current_file_path = os.path.abspath(__file__)
             path_to_this_folder = os.path.dirname(current_file_path)
@@ -68,50 +64,7 @@ class AutoGrader():
             self.roster_file = os.path.join(self.private_data_file_path, '_roster.csv')
 
             self.create_pull_request_comment = False
-
-        def import_modules(self):
-            """
-            Dynamically import a list of modules by name.
-            """
-            if self.required_modules:
-                for module in self.required_modules:
-                    importlib.import_module(module)
-
-        # def load_pickled_data(pickle_path, required_modules=None):
-        #     """
-        #     Load pickled data after dynamically importing required modules.
-        #     Args:
-        #         pickle_path (str): Path to the pickle file.
-        #         required_modules (list[str] or None): List of module names to import before unpickling.
-        #     Returns:
-        #         Any: The unpickled data.
-        #     """
-        #     if required_modules:
-        #         _dynamic_import_modules(required_modules)
-        #     with open(pickle_path, "rb") as f:
-        #         data = pickle.load(f)
-        #     return data
-        # def load_pickled_param_data(self, pickle_path):
-        #     """
-        #     Load a pickled parameter dictionary (or dict with param/inputs/outputs) for grading.
-        #     Ensures required modules are imported before unpickling.
-        #     Args:
-        #         pickle_path (str): Path to the pickle file.
-        #     Returns:
-        #         Any: The unpickled data.
-        #     """
-        #     return load_pickled_data(pickle_path, self.required_modules)
-# --- Usage Example ---
-#
-# In your AutoGraderParam (e.g., in DNE_assignment_info_template.py):
-# Param.required_modules = ["control"]
-#
-# When saving data:
-#   with open("data.pkl", "wb") as f:
-#       pickle.dump({"param": param_dict, "inputs": inputs, "outputs": outputs}, f)
-#
-# When loading in AutoGrader:
-#   data = auto_grader.load_pickled_param_data("data.pkl")
+            
 
         def convert_objects_to_functions(self, assignment_indexes: list[int] = None):
             """
@@ -151,7 +104,7 @@ class AutoGrader():
             # Get the input data sets
             if comparison_file:
                 log(f"📂 Loading inputs from previous file: {comparison_file}")
-                _class_inputs, input_sets, _output_sets = self.load_data_from_pkl(comparison_file)
+                _class_inputs, input_sets, _output_sets = self.load_data_from_pkl(comparison_file, self.Param.required_modules)
             else:
                 log(f"🎲 Generating {self.Param.iterations} random input sets...")
 
@@ -219,8 +172,8 @@ class AutoGrader():
         def grade_file(self, comparison_file: str, test_file: str, tolerance: float) -> tuple[float, list[str], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
             # Load the pickel files
-            _compare_class_inputs, _compare_input_sets, compare_output_sets = self.load_data_from_pkl(comparison_file)
-            _test_class_inputs,    _test_input_sets,    test_output_sets    = self.load_data_from_pkl(      test_file)
+            _compare_class_inputs, _compare_input_sets, compare_output_sets = self.load_data_from_pkl(comparison_file, self.Param.required_modules)
+            _test_class_inputs,    _test_input_sets,    test_output_sets    = self.load_data_from_pkl(      test_file, self.Param.required_modules)
     
             # 1. Build column_labels: "variable_name[indexes]" for each key and each element in the array
             column_labels = []
@@ -473,7 +426,7 @@ class AutoGrader():
             root_file_path = os.path.dirname(auto_grader_path)
 
             # Create the check file
-            check_file = os.path.join(root_file_path, f"DNE_{self.assignments[a].title}_check.py")
+            check_file = os.path.join(root_file_path, f"DNE_run_code_checker.py")
             if not os.path.exists(check_file) or overwrite:
                 with open(check_file, "w") as f:
                     print("# select an assignment to check from the list below", file=f)
@@ -717,7 +670,7 @@ class AutoGrader():
             return np.random.uniform(low, high)
 
         @staticmethod
-        def load_data_from_pkl(data_file: str) -> tuple[dict[str, np.ndarray],list[dict[str, np.ndarray]],list[dict[str, np.ndarray]]]:
+        def load_data_from_pkl(data_file: str, required_modules) -> tuple[dict[str, np.ndarray],list[dict[str, np.ndarray]],list[dict[str, np.ndarray]]]:
             """
             Load pickle file data
 
@@ -732,6 +685,10 @@ class AutoGrader():
 
             # Load the data from the pickle file
             try:
+                if required_modules:
+                    for module in required_modules:
+                        importlib.import_module(module)
+
                 with open(data_file, "rb") as f:
                     data = pickle.load(f)
             except FileNotFoundError:

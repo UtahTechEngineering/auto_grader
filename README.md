@@ -73,14 +73,13 @@ This will not overwrite these files if they already exist. If you would like to 
 
 If you have not already, I recomend using a virtual enviorment. To set one up
 
-    pip install virtualenv
-    python -m virtualenv <name of virtual enviorment>
+    python -m venv <name of virtual enviorment>
     source <name of virtual enviorment>/bin/activate
     pip install -r requirements.txt
 
 **Note** You may need to use `pip3` and `python3` or some other call to pip and python depending on your python installation.
 
-If you already have a virtual enviorment you will need to install `pandas`, `numpy`, and `requests`. I recommed adding them to your `requirements.txt`
+If you already have a virtual enviorment you will need to install `numpy`, `importlib` and `Requests`. I recommed adding them to your `requirements.txt`
 
 ### Input The Assignment Information
 
@@ -118,6 +117,7 @@ You can also do other things in this file. For example, I've used the assignment
 
 The `AutoGraderParam` class also has several other global settings you can adjust. They are
 
+- `required_modules` - This is a list of strings containing all of the modules required to run your code. They will be imported before loading the data (i.e. objects) we will save.
 - `iterations` - The number of times to evaluate the test function (each time with different inputs). Default is `1e4`.
 - `tolerance` - The auto grader simply checks if the students solution is close to your provided solution. This variable defines how close they need to be. If the difference is less than this value then the students solution is considered correct. This helps account for issues like machine floating point precision errors. Default value is `1e-10`.
 - `total_average_report_blocks` - When the code is posted to Canvas a comment is added to a pull request on Github called `Feedback`. This comment gives details about the autograder's results. This includes a table listing each output and if it was correct or not. In my work, it is common for some outputs to begin correct, but then slowly diverge from the solution (i.e. persistant variables). So it is useful to debugging to see how the error changes over time. To that end I added a plot of sorts. It is a colored line for each output. Green represents an correct output and red represents an incorrect output. The darker the shade of red the larger the error is. The line is broken into `total_average_report_blocks` segments. So each segment represents the total error over `iterations/total_average_report_blocks` test cases. The default is `10`. Note that adding too many segments (i.e. blocks) may make this portion of the pull request comment difficult to read.
@@ -161,7 +161,7 @@ This will create the following files
 
 The check and grade CSVs are always overwritten. If you would like to overwrite the check python files then you need to set the `overwrite` optional input to the `create_assignment_files` method to `True`. This can be done in the `_create_assignment_files.py` file.
 
-Everything is now setup and you should be able to run the autograder. To test it you can run the `DNE_<assignment title>_check.py` files and the `DNE_github_grade_on_push.py` file. To run the `DNE_github_grade_on_push.py` you will need to supply the required arguments `--github_actor` which should be the github username of the student (I suggest setting up a test account on Github) and `--canvas_api_token` which is the Canvas API token (I'll tell you to set this up later, but you can see how to do it [here](https://community.canvaslms.com/t5/Canvas-Basics-Guide/How-do-I-manage-API-access-tokens-in-my-user-account/ta-p/615312))
+Everything is now setup and you should be able to run the autograder. To test it you can run the `DNE_run_code_checker.py` files and the `DNE_github_grade_on_push.py` file. To run the `DNE_github_grade_on_push.py` you will need to supply the required arguments `--github_actor` which should be the github username of the student (I suggest setting up a test account on Github) and `--canvas_api_token` which is the Canvas API token (I'll tell you to set this up later, but you can see how to do it [here](https://community.canvaslms.com/t5/Canvas-Basics-Guide/How-do-I-manage-API-access-tokens-in-my-user-account/ta-p/615312))
 
 **Note:** The print statements in the student's code are suppresed to stop the console from being clogged with print statments that students left in the code after debuging.
 
