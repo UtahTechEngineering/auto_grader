@@ -472,16 +472,24 @@ class AutoGrader():
             auto_grader_path = os.path.dirname(os.path.abspath(__file__))
             root_file_path = os.path.dirname(auto_grader_path)
 
-            for a in assignment_indexes:
-                check_file = os.path.join(root_file_path, f"DNE_{self.assignments[a].title}_check.py")
-                if not os.path.exists(check_file) or overwrite:
-                    with open(check_file, "w") as f:
-                        for line in AutoGrader.DNE_text:
-                            print(line, file=f)
-                        print("from DNE_assignment_info import auto_grader", file=f)
-                        print(f"auto_grader.run_auto_gradeing(assignment_indexes = [{a}])", file=f)
-                        for line in AutoGrader.DNE_text:
-                            print(line, file=f)
+            # Create the check file
+            check_file = os.path.join(root_file_path, f"DNE_{self.assignments[a].title}_check.py")
+            if not os.path.exists(check_file) or overwrite:
+                with open(check_file, "w") as f:
+                    print("# select an assignment to check from the list below", file=f)
+                    print("assignment_to_check = '" + self.assignments[0].title + "'", file=f)
+                    print("", file=f)
+                    print("list_of_assignments = [", file=f)
+                    for a in assignment_indexes:
+                        print(f"    '{self.assignments[a].title}',", file=f)
+                    print("]", file=f)
+                    print("", file=f)
+                    print("# Find the index of the assignment to check", file=f)
+                    print("assignment_to_check_index = list_of_assignments.index(assignment_to_check)", file=f)
+                    print("", file=f)
+                    print("# Import the auto grader and run it", file=f)
+                    print("from DNE_assignment_info import auto_grader", file=f)
+                    print(f"auto_grader.run_auto_gradeing(assignment_indexes = [assignment_to_check_index])", file=f)
 
         def post_grades(self):
 
