@@ -14,6 +14,8 @@ from datetime import datetime
 from collections import defaultdict
 import os
 import traceback
+from typing import List, Tuple
+from .DNE_Assignment import Assignment
 from .DNE_AutoGraderParam import AutoGraderParam
 from .DNE_log import log
 from .DNE_HiddenPrints import HiddenPrints
@@ -40,7 +42,7 @@ class AutoGrader():
                         "# The instructor will be notified if you submit an edited version of this file.",
                         "########################################################################################"]
 
-        def __init__(self, assignments: list, Param: AutoGraderParam):
+        def __init__(self, assignments: List[Assignment], Param: AutoGraderParam):
             # Save assignments
             self.assignments = assignments
 
