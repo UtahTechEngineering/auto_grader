@@ -23,7 +23,8 @@ import argparse
 from datetime import datetime, timezone
 import shutil
 try:
-    import pandas as pd
+    import importlib
+    import pickle
     import numpy as np
     import requests
 except ImportError:
@@ -49,6 +50,10 @@ class AutoGrader():
             # Save parameters
             self.Param = Param
 
+            # Support for required modules for unpickling
+            self.required_modules = getattr(self.Param, 'required_modules', None)
+            self.import_modules()
+
             # Get file paths
             current_file_path = os.path.abspath(__file__)
             path_to_this_folder = os.path.dirname(current_file_path)
@@ -63,6 +68,50 @@ class AutoGrader():
             self.roster_file = os.path.join(self.private_data_file_path, '_roster.csv')
 
             self.create_pull_request_comment = False
+
+        def import_modules(self):
+            """
+            Dynamically import a list of modules by name.
+            """
+            if self.required_modules:
+                for module in self.required_modules:
+                    importlib.import_module(module)
+
+        # def load_pickled_data(pickle_path, required_modules=None):
+        #     """
+        #     Load pickled data after dynamically importing required modules.
+        #     Args:
+        #         pickle_path (str): Path to the pickle file.
+        #         required_modules (list[str] or None): List of module names to import before unpickling.
+        #     Returns:
+        #         Any: The unpickled data.
+        #     """
+        #     if required_modules:
+        #         _dynamic_import_modules(required_modules)
+        #     with open(pickle_path, "rb") as f:
+        #         data = pickle.load(f)
+        #     return data
+        # def load_pickled_param_data(self, pickle_path):
+        #     """
+        #     Load a pickled parameter dictionary (or dict with param/inputs/outputs) for grading.
+        #     Ensures required modules are imported before unpickling.
+        #     Args:
+        #         pickle_path (str): Path to the pickle file.
+        #     Returns:
+        #         Any: The unpickled data.
+        #     """
+        #     return load_pickled_data(pickle_path, self.required_modules)
+# --- Usage Example ---
+#
+# In your AutoGraderParam (e.g., in DNE_assignment_info_template.py):
+# Param.required_modules = ["control"]
+#
+# When saving data:
+#   with open("data.pkl", "wb") as f:
+#       pickle.dump({"param": param_dict, "inputs": inputs, "outputs": outputs}, f)
+#
+# When loading in AutoGrader:
+#   data = auto_grader.load_pickled_param_data("data.pkl")
 
         def convert_objects_to_functions(self, assignment_indexes: list[int] = None):
             """
@@ -90,10 +139,7 @@ class AutoGrader():
             # get the assignmnet information
             assignment = self.assignments[assignment_index]
             function_to_evaluate = assignment.function_to_evaluate
-            input_shapes = assignment.input_shapes
             output_shapes = assignment.output_shapes
-            input_ranges = assignment.input_ranges
-            input_labels = assignment.input_labels
             output_labels = assignment.output_labels
 
             # Get the name of the class we're checking
@@ -105,14 +151,21 @@ class AutoGrader():
             # Get the input data sets
             if comparison_file:
                 log(f"📂 Loading inputs from previous file: {comparison_file}")
-                input_sets, input_labels, output_labels = self.load_inputs_from_csv(comparison_file, input_shapes, output_shapes)
+                _class_inputs, input_sets, _output_sets = self.load_data_from_pkl(comparison_file)
             else:
                 log(f"🎲 Generating {self.Param.iterations} random input sets...")
+
+                # For shorter lines of code
+                input_ranges = assignment.input_ranges
+                input_shapes = assignment.input_shapes
+                input_labels = assignment.input_labels
+
                 input_sets = []
                 for _ in range(self.Param.iterations):
                     inputs = {
                         label: self.generate_random_input(shape, input_ranges[input_number])
-                        for input_number, (shape, label) in enumerate(zip(input_shapes,input_labels))
+                        for input_number, (shape, label) 
+                        in enumerate(zip(input_shapes, input_labels))
                     }
                     input_sets.append(inputs)
 
@@ -156,33 +209,44 @@ class AutoGrader():
                 log(f"Function '{function_to_evaluate.__name__}'{class_text} executed successfully.")
 
                 # Save the input and output data to a CSV file
-                self.save_arrays_to_csv(input_sets, input_labels, output_sets, output_labels, output_data_file)
+                self.save_data_to_pkl(assignment.class_inputs, input_sets, output_sets, output_data_file)
 
                 # Log the successful save
                 log(f"Successfully saved data to {output_data_file}")
                 
                 return None
         
-        def grade_csv(self, comparison_file: str, test_file: str, tolerance: float) -> tuple[float, list[str], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        def grade_file(self, comparison_file: str, test_file: str, tolerance: float) -> tuple[float, list[str], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
             # Load the CSV files
-            df_compare = pd.read_csv(comparison_file, index_col=False)
-            df_test = pd.read_csv(test_file, index_col=False)
-            
-            # Remove the input columns and keep a list of the column labels
-            all_columns = df_compare.columns.tolist()
+            _compare_class_inputs, _compare_input_sets, compare_output_sets = self.load_data_from_pkl(comparison_file)
+            _test_class_inputs,    _test_input_sets,    test_output_sets    = self.load_data_from_pkl(      test_file)
+    
+            # 1. Build column_labels: "variable_name[indexes]" for each key and each element in the array
             column_labels = []
-            for column_name in all_columns:
-                if column_name.startswith("input:"):
-                    df_compare = df_compare.drop(columns=column_name, axis="columns")
-                    df_test = df_test.drop(columns=column_name, axis="columns")
-                else:
-                    _, label, component_index = column_name.split(":", 2)
-                    column_labels.append(f"{label}:{component_index}")
+            output_keys = list(compare_output_sets[0].keys())
+            output_shapes = {k: compare_output_sets[0][k].shape for k in output_keys}
+
+            # Generate all (key, index_tuple) pairs
+            column_tuples = []
+            for k in output_keys:
+                shape = output_shapes[k]
+                for idx in np.ndindex(shape):
+                    column_labels.append(f"{k}[{','.join(map(str, idx))}]")
+                    column_tuples.append((k, idx))
+
+            # 2. Build the 2D arrays
+            def flatten_outputs(output_sets):
+                arr = np.empty((len(output_sets), len(column_labels)), dtype=float)
+                for i, outputs in enumerate(output_sets):
+                    for j, (k, idx) in enumerate(column_tuples):
+                        arr[i, j] = outputs[k][idx]
+                return arr
+
+            sol_values = flatten_outputs(compare_output_sets)
+            test_values = flatten_outputs(test_output_sets)
 
             # Compare values with tolerance
-            sol_values = df_compare.to_numpy(dtype=np.float64)
-            test_values = df_test.to_numpy(dtype=np.float64)
             matches = np.isclose(sol_values, test_values, rtol=0, atol=tolerance)
             error = np.abs(sol_values - test_values)
             error[matches] = 0  # Set matches to 0 to acount for tolerance
@@ -321,9 +385,9 @@ class AutoGrader():
                     continue
 
                 # Create the file names
-                check_file_name = f"DNE_{assignment_title}_checker_data.csv"
-                grade_file_name = f"_{assignment_title}_grader_data.csv"
-                test_file_name = f"_{assignment_title}_test_data.csv"
+                check_file_name = f"DNE_{assignment_title}_checker_data.pkl"
+                grade_file_name = f"_{assignment_title}_grader_data.pkl"
+                test_file_name = f"_{assignment_title}_test_data.pkl"
                 
                 # Create the full file paths
                 check_file_path = os.path.join(self.public_data_file_path, check_file_name)
@@ -349,7 +413,7 @@ class AutoGrader():
                 # Grade the test data against the comparison file
                 log(f"Grading {self.assignments[a].title} by evaluating {test_file_path} against {comparison_file}...")
                 percent_correct, column_labels, percent_correct_by_column, average_error_by_column, iteration_of_first_error_by_column, binned_error \
-                    = self.grade_csv(comparison_file, test_file_path, self.Param.tolerance)
+                    = self.grade_file(comparison_file, test_file_path, self.Param.tolerance)
 
                 # Calculate the final score
                 final_score = percent_correct * self.assignments[a].max_score
@@ -381,9 +445,9 @@ class AutoGrader():
                 assignment_title = self.assignments[a].title
 
                 # Create the file names
-                check_file_name = f"DNE_{assignment_title}_checker_data.csv"
-                grade_file_name = f"_{assignment_title}_grader_data.csv"
-                # test_file_name = f"{assignment_title}_test_data.csv"
+                check_file_name = f"DNE_{assignment_title}_checker_data.pkl"
+                grade_file_name = f"_{assignment_title}_grader_data.pkl"
+                # test_file_name = f"{assignment_title}_test_data.pkl"
                 
                 # Create the full file paths
                 check_file_path = os.path.join(self.public_data_file_path, check_file_name)
@@ -452,12 +516,20 @@ class AutoGrader():
 
             # Get Canvas student ID
             try:
-                df = pd.read_csv(self.roster_file, header=0, index_col=False)
-                student_id_series = df.loc[df['github_username'] == args.github_actor, 'canvas_student_id']
-                if student_id_series.empty:
-                    log(f"No Canvas Student ID found for Github user {args.github_actor}. Please confirm you submitted the correct Github username to Canvas.", type="error")
-                    exit(1)
-                student_id = int(student_id_series.iloc[0])
+                with open(self.roster_file, "r") as f:
+                    header = f.readline().strip().split(",")
+                    github_idx = header.index("github_username")
+                    canvas_idx = header.index("canvas_student_id")
+                    student_id = None
+                    for line in f:
+                        fields = line.strip().split(",")
+                        if fields[github_idx] == args.github_actor:
+                            student_id = fields[canvas_idx]
+                            break
+                    if student_id is None or student_id == "":
+                        log(f"No Canvas Student ID found for Github user {args.github_actor}. Please confirm you submitted the correct Github username to Canvas.", type="error")
+                        exit(1)
+                    student_id = int(student_id)
             except:
                 log(f"Error reading the roster file {self.roster_file}. Please ensure the '_roster.csv' file exists and is formatted correctly.", type="error")
             
@@ -609,45 +681,24 @@ class AutoGrader():
             return f'#{r:02X}{g:02X}{b:02X}'
 
         @staticmethod
-        def save_arrays_to_csv(input_sets: list[dict[str, np.ndarray]], 
-                               input_labels: list[str], 
+        def save_data_to_pkl(class_inputs: dict[str, dict | np.ndarray],
+                               input_sets: list[dict[str, np.ndarray]], 
                                output_sets: list[dict[str, np.ndarray]], 
-                               output_labels: list[str], 
-                               output_data_file: str):
+                               data_file: str):
             """
-            Save the data so that:
-            - Each row represents one iteration (data point)
-            - Each column is a labeled component from the input/output arrays
+            Save the data to pickle file.
             """
 
-            # Combine the inputs and outputs into a single dictionary
-            input_output_sets = []
-            for inputs, outputs in zip(input_sets, output_sets):
-                combined = {**inputs, **outputs}
-                input_output_sets.append(combined)
+            # Combine the information into a single dictionary
+            combined_data = {
+                "class_inputs": class_inputs,
+                "input_sets": input_sets,
+                "output_sets": output_sets
+            }
 
-            # Reshape the arrays
-            for i, input_set in enumerate(input_output_sets):
-                for key, array in input_set.items():
-                    if isinstance(array,np.ndarray):
-                        input_output_sets[i][key] = array.flatten()
-
-            # Create a dictionary to hold the arrays and their labels
-            # list of dicts to dict of lists
-            data = defaultdict(list)
-            for input_output_set in input_output_sets:
-                for key, array in input_output_set.items():
-                    for component_index, value in enumerate(array):
-                        if key in input_labels:
-                            label = f"input:{key}:{component_index}"
-                        elif key in output_labels:
-                            label = f"output:{key}:{component_index}"
-                        data[label].append(value)
-
-            # Convert to pandas DataFrame
-            df = pd.DataFrame(data)
-
-            df.to_csv(output_data_file, index=False)
+            # Save the combined data to a pickle file
+            with open(data_file, "wb") as f:
+                pickle.dump(combined_data, f)
 
         @staticmethod
         def generate_random_input(shape: tuple, ranges: np.ndarray) -> np.ndarray:
@@ -658,63 +709,38 @@ class AutoGrader():
             return np.random.uniform(low, high)
 
         @staticmethod
-        def load_inputs_from_csv(csv_file: str, input_shapes: list[tuple], output_shapes: list[tuple]) -> tuple[list[dict[str, np.ndarray]], list[str], list[str]]:
+        def load_data_from_pkl(data_file: str) -> tuple[dict[str, np.ndarray],list[dict[str, np.ndarray]],list[dict[str, np.ndarray]]]:
             """
-            Load a structured CSV where:
-            - Each row is an iteration
-            - Each column is a labeled component. This label must be <'input' or 'output'>:<function keyword>:<component number> (e.g., input:state:0, output:state_dot:1)
+            Load pickle file data
 
             Args:
-                csv_file: path to CSV file
-                input_shapes: list of tuples, shapes of each input in order
-                output_shapes: list of tuples, shapes of each output in order
+                data_file: path to pickle file
 
             Returns:
+                class_inputs: dict, maps input keyword (i.e. a label) to np.ndarray of correct shape
                 input_sets: list of dicts, each dict maps input keyword (i.e. a label) to np.ndarray of correct shape
-                input_labels: list of input labels (str), in order
-                output_labels: list of output labels (str), in order
+                output_sets: list of dicts, each dict maps output keyword (i.e. a label) to np.ndarray of correct shape
             """
 
+            # Load the data from the pickle file
             try:
-                df = pd.read_csv(csv_file)
+                with open(data_file, "rb") as f:
+                    data = pickle.load(f)
             except FileNotFoundError:
                 log(f"CSV file {csv_file} not found. Please ensure the file exists and is in the correct format.", type="error")
-                return [], [], []
+                return {}, [], []
+            
+            # Confrim the data is formatted correctly
+            if not all(key in data for key in ["class_inputs", "input_sets", "output_sets"]):
+                log(f"Data file {data_file} is in the wrong format. Expected keys: 'class_inputs', 'input_sets', 'output_sets'. Found keys: {data.keys()}", type="error")
+                return {}, [], []
+            
+            # Unpack the data
+            class_inputs = data.get("class_inputs", {})
+            input_sets = data.get("input_sets", [])
+            output_sets = data.get("output_sets", [])
 
-            # Separate input/output columns by prefix
-            all_columns = df.columns.tolist()
-
-            # Get labels for each column
-            input_labels = [""]*len(input_shapes)
-            output_labels = [""]*len(output_shapes)
-            input_num = 0
-            output_num = 0
-            for col,column_name in enumerate(all_columns):
-                input_or_output, label, component_index = column_name.split(":", 2)
-                if input_or_output == "input" and label not in input_labels:
-                    input_labels[input_num] = label
-                    input_num += 1
-                elif input_or_output == "output" and label not in output_labels:
-                    output_labels[output_num] = label
-                    output_num += 1
-
-            # Get input data
-            input_sets = []
-            for row,_ in df.iterrows():
-                inputs = {label:np.empty(np.prod(shape), dtype=np.float64) for label,shape in zip(input_labels,input_shapes)}
-                for col, column_name in enumerate(all_columns):
-                    input_or_output, label, component_index = column_name.split(":", 2)
-                    if input_or_output.startswith("input"):
-                        component_index = int(component_index)  # Convert to integer index
-                        inputs[label][component_index] = df.iloc[row, col]
-                
-                # Reshape inputs to their original shapes
-                for key, shape in zip(input_labels, input_shapes):
-                    inputs[key] = inputs[key].reshape(shape)
-
-                input_sets.append(inputs)
-
-            return input_sets, input_labels, output_labels
+            return class_inputs, input_sets, output_sets
 
         @staticmethod
         def create_auto_grader_files(repo_name: str = None, overwrite: bool = False):

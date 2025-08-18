@@ -16,8 +16,11 @@ class AutoGraderParam:
     Class to hold parameters for the Auto Grader.
     """
     # Course parameters
-    # These must be set seperately for each couse
     course_id = None 
+    
+    # Repository parameters
+    repo_name = "" 
+    required_modules = []
 
     # Autograding parameters
     iterations = int(1e4)
