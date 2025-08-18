@@ -260,13 +260,13 @@ class AutoGrader():
                     if error_string is None:
                         print("### :bar_chart: Detailed Breakdown of Results", file=f)
                         print("", file=f)
-                        print("| Output | Component | Tests Passed | Average Error | 1st Error | Error plot |", file=f)
-                        print("| --- | --- | --- | --- | --- | --- |", file=f)
+                        print("| Output | Tests Passed | Average Error | 1st Error | Error plot |", file=f)
+                        print("| --- | --- | --- | --- | --- |", file=f)
                         
                         # for each function output
                         for col, column_name in enumerate(column_labels):
                             # Generate a row in the table
-                            format_string = f"| {column_name.split(':')[0]} | {column_name.split(':')[1]} | {percent_correct_by_column[0, col]:.2%} | {average_error_by_column[0, col]:.2e} | {iteration_of_first_error_by_column[0, col]}"
+                            format_string = f"| {column_name} | {percent_correct_by_column[0, col]:.2%} | {average_error_by_column[0, col]:.2e} | {iteration_of_first_error_by_column[0, col]}"
                             format_string += "|$"
 
                             # Add the error plot
