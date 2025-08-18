@@ -12,8 +12,8 @@ This code requires you to have installed
 - Git
 - Python
 - The following pip packages
-    - Numpy
-    - Pandas
+    - numpy
+    - importlib
     - Requests
 - Visual Studio Code (Recomended)
 - Assignments created in Canvas
