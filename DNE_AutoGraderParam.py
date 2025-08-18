@@ -23,7 +23,6 @@ class AutoGraderParam:
     required_modules = []
 
     # Autograding parameters
-    iterations = int(1e4)
     tolerance = 1e-10  # Tolerance for checking outputs
 
     # Markdown formatting parameters

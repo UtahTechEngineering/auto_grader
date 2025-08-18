@@ -260,27 +260,30 @@ class AutoGrader():
                     if error_string is None:
                         print("### :bar_chart: Detailed Breakdown of Results", file=f)
                         print("", file=f)
-                        print("| Output | Tests Passed | Average Error | 1st Error | Error plot |", file=f)
-                        print("| --- | --- | --- | --- | --- |", file=f)
-                        
-                        # for each function output
-                        for col, column_name in enumerate(column_labels):
-                            # Generate a row in the table
-                            format_string = f"| {column_name} | {percent_correct_by_column[0, col]:.2%} | {average_error_by_column[0, col]:.2e} | {iteration_of_first_error_by_column[0, col]}"
-                            format_string += "|$"
+                        if len(column_labels) <= 20:
+                            print("| Output | Tests Passed | Average Error | 1st Error | Error plot |", file=f)
+                            print("| --- | --- | --- | --- | --- |", file=f)
+                            
+                            # for each function output
+                            for col, column_name in enumerate(column_labels):
+                                # Generate a row in the table
+                                format_string = f"| {column_name} | {percent_correct_by_column[0, col]:.2%} | {average_error_by_column[0, col]:.2e} | {iteration_of_first_error_by_column[0, col]}"
+                                format_string += "|$"
 
-                            # Add the error plot
-                            for test_case in binned_error[:, col]:
-                                if test_case < tolerance:
-                                    format_string += f"\\color{{{self.rgb_to_hex(0,255,0)}}}{{▬}}"
-                                else:
-                                    color = int(255-255 * (test_case / np.max(binned_error[:, col])))
-                                    format_string += f"\\color{{{self.rgb_to_hex(255,color,color)}}}{{▬}}"
-                                # Add the test case error values
-                            format_string += "$|"
+                                # Add the error plot
+                                for test_case in binned_error[:, col]:
+                                    if test_case < tolerance:
+                                        format_string += f"\\color{{{self.rgb_to_hex(0,255,0)}}}{{▬}}"
+                                    else:
+                                        color = int(255-255 * (test_case / np.max(binned_error[:, col])))
+                                        format_string += f"\\color{{{self.rgb_to_hex(255,color,color)}}}{{▬}}"
+                                    # Add the test case error values
+                                format_string += "$|"
 
-                            # Plot the row
-                            print(format_string, file=f)
+                                # Plot the row
+                                print(format_string, file=f)
+                            else:
+                                print("Too many outputs to display in table format", file=f)
                     else:
                         # If there was an error, print the error message
                         print("### :x: Error", file=f)
@@ -426,7 +429,7 @@ class AutoGrader():
             root_file_path = os.path.dirname(auto_grader_path)
 
             # Create the check file
-            check_file = os.path.join(root_file_path, f"DNE_run_code_checker.py")
+            check_file = os.path.join(root_file_path, f"run_code_checker.py")
             if not os.path.exists(check_file) or overwrite:
                 with open(check_file, "w") as f:
                     print("# select an assignment to check from the list below", file=f)
