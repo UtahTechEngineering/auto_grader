@@ -106,7 +106,7 @@ class AutoGrader():
                 log(f"📂 Loading inputs from previous file: {comparison_file}")
                 _class_inputs, input_sets, _output_sets = self.load_data_from_pkl(comparison_file, self.Param.required_modules)
             else:
-                log(f"🎲 Generating {self.Param.iterations} random input sets...")
+                log(f"🎲 Generating {assignment.iterations} random input sets...")
 
                 # For shorter lines of code
                 input_ranges = assignment.input_ranges
@@ -114,7 +114,7 @@ class AutoGrader():
                 input_labels = assignment.input_labels
 
                 input_sets = []
-                for _ in range(self.Param.iterations):
+                for _ in range(assignment.iterations):
                     inputs = {
                         label: self.generate_random_input(shape, input_ranges[input_number])
                         for input_number, (shape, label) 
@@ -302,7 +302,7 @@ class AutoGrader():
                 with open(self.markdown_file, "a") as f:
                     print("", file=f)
                     print("- **1st Error** Indicates which test case first returned incorrect results. -1 means no error occured. When debugging, retrying these inputs is a good place to start.", file=f)
-                    print(f"- **Error Plot** Each block shows average error over {int(round(self.Param.iterations/self.Param.total_average_report_blocks))} test cases. Green indicates all correct results, red indicates some incorrect results. " +
+                    print(f"- **Error Plot** Each block shows average error over several test cases. Green indicates all correct results, red indicates some incorrect results. " +
                         "The darker the shade of red, the larger the error. This can be useful to see if the error is following a pattern (indicating an issue " +
                         "with persistent variables) or if it is random (indicating an issue with the algorithm).", file=f)
                     print("", file=f)
