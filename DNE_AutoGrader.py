@@ -510,6 +510,10 @@ class AutoGrader():
                 LATE_PENALTY = self.Param.late_penalty_per_day # Points lost per day late
                 LATE_GRADE_FLOOR = self.Param.late_penalty_floor  # Minimum grade to assign
 
+                # Extract rubric criterion IDs if they exist
+                ASSIGNMENT_ID, RUBRIC_CRITERION = ASSIGNMENT_ID.split("_", 1) if "_" in ASSIGNMENT_ID else (ASSIGNMENT_ID, None)
+                if RUBRIC_CRITERION is not None:
+                    RUBRIC_CRITERION = "_" + RUBRIC_CRITERION
 
                 # -------------------------------
                 # Check for late penalty and previous score
@@ -529,14 +533,14 @@ class AutoGrader():
                 # API Endpoint
                 url = f"{API_URL}/courses/{COURSE_ID}/assignments/{ASSIGNMENT_ID}/submissions/{STUDENT_ID}"
                 # Request to Retrieve Assignment Details
-                submission_response = requests.get(url, headers=headers)
+                submission_response = requests.get(url, headers=headers, params={"include[]": "rubric_assessment"})
 
                 # Check if the request was successful
                 if assignment_response.status_code == 200:
-                    assignment = assignment_response.json()
+                    assignment_json = assignment_response.json()
 
                     # Apply late penalty if applicable
-                    due_at = assignment.get('due_at')
+                    due_at = assignment_json.get('due_at')
 
                     if due_at:
                         # Convert due date string to datetime object
@@ -556,8 +560,8 @@ class AutoGrader():
                             
                             # Apply late penalty
                             NEW_GRADE = GRADE
-                            if NEW_GRADE > LATE_GRADE_FLOOR:
-                                NEW_GRADE = max(LATE_GRADE_FLOOR, GRADE - (LATE_PENALTY * (delta+1)))
+                            if NEW_GRADE > LATE_GRADE_FLOOR/100.0*assignment.max_score:
+                                NEW_GRADE = max(LATE_GRADE_FLOOR/100.0*assignment.max_score, GRADE - (LATE_PENALTY/100.0*assignment.max_score * (delta+1)))
                             log(f"Late penalty: {GRADE - NEW_GRADE} points", type="warning")
                             log(f"New grade after applying late penalty: {NEW_GRADE}", type="warning")
                             GRADE = NEW_GRADE
@@ -571,8 +575,15 @@ class AutoGrader():
 
                 if submission_response.status_code == 200:
                     submission = submission_response.json()
-                    grade_value = submission.get('grade')
-                    previous_grade = float(grade_value) if grade_value is not None else 0.0 
+                    if RUBRIC_CRITERION is None:
+                        grade_value = submission.get('grade')
+                        previous_grade = float(grade_value) if grade_value is not None else 0.0 
+                    else:
+                        # If rubric criterion is specified, get the grade from the rubric
+                        rubric = submission.get('rubric_assessment', {})
+                        criterion = rubric.get(RUBRIC_CRITERION, {})
+                        grade_value = criterion.get('points', 0.0)
+                        previous_grade = float(grade_value) if grade_value is not None else 0.0
                     log(f"Previous submission grade: {previous_grade}")
                 else:
                     log(f"Failed to retrieve previous submission. Status Code: {response.status_code} Response: {response.text}", type="warning")
@@ -595,12 +606,31 @@ class AutoGrader():
                     'Content-Type': 'application/json'
                 }
 
-                # Payload
-                payload = {
-                    'submission': {
-                        'posted_grade': GRADE
+                if RUBRIC_CRITERION is None:
+                    # Payload
+                    payload = {
+                        'submission': {
+                            'posted_grade': GRADE
+                        },
+                        'comment': {
+                            'text_comment': f"Grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}.",
+                        }
                     }
-                }
+                else:
+                    rubric = submission.get("rubric_assessment", {})
+                    rubric[RUBRIC_CRITERION] = {"points": NEW_GRADE, "comments": f"Grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}."}
+                    score_list = [criterion.get("points", None) for criterion in rubric.values()]
+                    # Check if there is a missing score in score_list
+                    if any(s is None for s in score_list):
+                        payload = {
+                                'rubric_assessment': rubric
+                        }
+                    else:
+                        TOTAL_SCORE = sum(score_list)
+                        payload = {
+                                'posted_grade': TOTAL_SCORE,
+                                'rubric_assessment': rubric
+                        }
 
                 # POST Request
                 response = requests.put(url, headers=headers, json=payload)

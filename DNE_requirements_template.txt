@@ -11,7 +11,7 @@
 # The instructor will be notified if you submit an edited version of this file.
 ########################################################################################
 numpy
-Requests
+requests
 importlib
 ########################################################################################
 # 
