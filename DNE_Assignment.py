@@ -12,7 +12,7 @@
 ########################################################################################
 
 class Assignment:
-    def __init__(self, title, id, input_shapes, output_shapes, input_ranges, input_labels, output_labels, function_to_evaluate, class_to_evaluate=None, class_inputs=None, max_score=100.0):
+    def __init__(self, title, id, input_shapes, output_shapes, input_ranges, input_labels, output_labels, function_to_evaluate, class_to_evaluate=None, class_inputs=None, max_score=100.0, iterations=int(1e4)):
         self.title = title
         self.id = id
         self.input_shapes = input_shapes
@@ -24,6 +24,7 @@ class Assignment:
         self.class_to_evaluate = class_to_evaluate
         self.class_inputs = class_inputs
         self.max_score = max_score
+        self.iterations = iterations
 
 ########################################################################################
 # 
