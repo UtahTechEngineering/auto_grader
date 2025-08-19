@@ -514,9 +514,7 @@ class AutoGrader():
                 LATE_GRADE_FLOOR = self.Param.late_penalty_floor  # Minimum grade to assign
 
                 # Extract rubric criterion IDs if they exist
-                ASSIGNMENT_ID, RUBRIC_CRITERION = ASSIGNMENT_ID.split("_", 1) if "_" in ASSIGNMENT_ID else (ASSIGNMENT_ID, None)
-                if RUBRIC_CRITERION is not None:
-                    RUBRIC_CRITERION = "_" + RUBRIC_CRITERION
+                ASSIGNMENT_ID, RUBRIC_CRITERION = ASSIGNMENT_ID.split(" ", 1) if " " in ASSIGNMENT_ID else (ASSIGNMENT_ID, None)
 
                 # -------------------------------
                 # Check for late penalty and previous score
