@@ -50,7 +50,9 @@ def log(message: str, type: str = "info"):
         elif type == "grade":
             type = "📝 Grade"
 
-            if message < 100:
+            grade, max_grade = message.split("/")
+
+            if float(grade) < float(max_grade):
                 message = "❌ " + str(message)
             else:
                 message = "✅ " + str(message)

@@ -30,6 +30,11 @@ try:
 except ImportError:
     log("Required packages not installed. Please copy over the autograder files into your workspace using 'AutoGrader.create_auto_grader_files()' then install the required packages by running 'pip install -r requirements.txt' (optiona virtual enviorment). Autograder is usable in the initial setup mode.", type="warning")
 
+# enumeration for easier to read assignment info files
+NOT_GRADED = None
+CONSTANT_IO = None
+SCALAR_IO = 1
+
 class AutoGrader():
         DNE_text = ["########################################################################################",
                         "# ",
@@ -63,10 +68,10 @@ class AutoGrader():
             self.markdown_file = os.path.join(path_to_root_folder, "_pull_request_comment.md")
             self.roster_file = os.path.join(self.private_data_file_path, '_roster.csv')
 
-            self.create_pull_request_comment = False
+            self.create_pull_request_comment = True
             
 
-        def convert_objects_to_functions(self, assignment_indexes: list[int] = None):
+        def convert_objects_to_functions(self, assignment_indexes: list[int] = None, class_inputs: dict = None):
             """
             Convert class assignments to functions that can be run.
             This is useful for running the autograder on a function instead of a class.
@@ -75,14 +80,14 @@ class AutoGrader():
             for i in assignment_indexes:
                 if isinstance(self.assignments[i].function_to_evaluate, str):
                     # Create an instance of the class
-                    instance = self.assignments[i].class_to_evaluate(**self.assignments[i].class_inputs)
+                    with HiddenPrints():
+                        instance = self.assignments[i].class_to_evaluate(**class_inputs)
 
                     # Convert the method to a function
                     self.assignments[i].function_to_evaluate = getattr(instance, self.assignments[i].function_to_evaluate)
                     self.assignments[i].class_to_evaluate = self.assignments[i].class_to_evaluate.__name__
-                    self.assignments[i].class_inputs = None
 
-        def run_and_record(self, assignment_index: int, output_data_file: str, comparison_file: str = None,
+        def run_and_record(self, assignment_index: int, output_data_file: str, comparison_file: str = None, verbose: bool = True
         ) -> str:
 
             # Delete the old output file if it exists
@@ -91,7 +96,6 @@ class AutoGrader():
 
             # get the assignmnet information
             assignment = self.assignments[assignment_index]
-            function_to_evaluate = assignment.function_to_evaluate
             output_shapes = assignment.output_shapes
             output_labels = assignment.output_labels
 
@@ -103,10 +107,10 @@ class AutoGrader():
 
             # Get the input data sets
             if comparison_file:
-                log(f"📂 Loading inputs from previous file: {comparison_file}")
-                _class_inputs, input_sets, _output_sets = self.load_data_from_pkl(comparison_file, self.Param.required_modules)
+                if verbose: log(f"📂 Loading inputs from previous file: {comparison_file}")
+                class_inputs, input_sets, _output_sets = self.load_data_from_pkl(comparison_file, self.Param.required_modules)
             else:
-                log(f"🎲 Generating {assignment.iterations} random input sets...")
+                if verbose: log(f"🎲 Generating {assignment.iterations} random input sets...")
 
                 # For shorter lines of code
                 input_ranges = assignment.input_ranges
@@ -115,15 +119,32 @@ class AutoGrader():
 
                 input_sets = []
                 for _ in range(assignment.iterations):
-                    inputs = {
-                        label: self.generate_random_input(shape, input_ranges[input_number])
-                        for input_number, (shape, label) 
-                        in enumerate(zip(input_shapes, input_labels))
-                    }
+                    inputs = {}
+                    for input_number, (shape, label) in enumerate(zip(input_shapes, input_labels)):
+                        if shape is CONSTANT_IO:
+                            # If the shape is None, we don't generate an input
+                            # for this label instead we assume that the range
+                            # stores the value we should pass in.
+                            inputs[label] = input_ranges[input_number]
+                        else:
+                            inputs[label] = self.generate_random_input(shape, input_ranges[input_number])
+
                     input_sets.append(inputs)
+
+                # Class inputs
+                class_inputs = assignment.class_inputs if assignment.class_inputs is not None else {}
+            
+            # Convert class assignments to functions if needed
+            try:
+                self.convert_objects_to_functions([assignment_index], class_inputs)
+            except Exception:
+                return f"Error instantiating the class '{self.assignments[assignment_index].class_to_evaluate.__name__}' for assignment '{self.assignments[assignment_index].title}'. Please check the class constructor. Error: \n\n" + traceback.format_exc()
+            else:
+                function_to_evaluate = assignment.function_to_evaluate
 
             # Evaluate function and collect results
             try:
+                if verbose: log(f"⚙️ Evaluating function '{function_to_evaluate.__name__}'{class_text} with {len(input_sets)} input sets...")
                 output_sets = []
                 for inputs in input_sets:
                     # Ensure inputs match expected shapes
@@ -144,11 +165,27 @@ class AutoGrader():
                         
                         return f"Function '{function_to_evaluate.__name__}'{class_text} returned {number_of_outputs} objects which does not match expected {len(output_shapes)} objects."
                     
-                    # Check each output shape
+                    # Check each output shape and mark for removal if the expected shape indicates it is not graded
+                    marked_for_removal = []
                     for i, output in enumerate(outputs):
-                        if output.shape != output_shapes[i]:
+                        if output_shapes[i] is NOT_GRADED:
+                            # If the output shape is not graded, we don't check the shape
+                            # instead we remove the output from the list of outputs
+                            marked_for_removal.append(i)
+                        elif isinstance(output_shapes[i], tuple) and output.shape != output_shapes[i]:
                             return f"Function '{function_to_evaluate.__name__}' output {i} ('{output_labels[i]}') shape does not match expected. Got an object with the shape {output.shape}. Expected {output_shapes[i]}."
+                        elif output_shapes[i] == SCALAR_IO:
+                            try:
+                                output = float(output)
+                            except:
+                                return f"Function '{function_to_evaluate.__name__}' output {i} ('{output_labels[i]}') is not numeric. Got an object of type {type(output)}."
                     
+                    # Remove the outputs that are not graded 
+                    # These are the outptus that are not graded.
+                    outputs = [output for j, output in enumerate(outputs) if j not in marked_for_removal]
+                    if len(outputs) != len(output_labels):
+                        output_labels = [output_labels[j] for j in range(len(output_labels)) if j not in marked_for_removal]
+
                     # Save the outputs in a dictionary
                     dict_outputs = {label:output for label, output in zip(output_labels, outputs)}
 
@@ -159,13 +196,13 @@ class AutoGrader():
                 return f"Function '{function_to_evaluate.__name__}'{class_text} execution failed. Please check the function implementation. Error: \n\n" + traceback.format_exc()
             else:
                 # If the function executed successfully, log the success
-                log(f"Function '{function_to_evaluate.__name__}'{class_text} executed successfully.")
+                if verbose: log(f"Function '{function_to_evaluate.__name__}'{class_text} executed successfully.")
 
                 # Save the input and output data to a pickel file
-                self.save_data_to_pkl(assignment.class_inputs, input_sets, output_sets, output_data_file)
+                self.save_data_to_pkl(class_inputs, input_sets, output_sets, output_data_file)
 
                 # Log the successful save
-                log(f"Successfully saved data to {output_data_file}")
+                if verbose: log(f"Successfully saved data to {output_data_file}")
                 
                 return None
         
@@ -209,9 +246,16 @@ class AutoGrader():
             total_iterations = sol_values.shape[0]
             correct_total = matches.sum()
             correct_by_column = matches.sum(axis=0, keepdims=True)
-            average_error_by_column = np.mean(error, axis=0, keepdims=True)
             percent_correct = correct_total / total_entries
             percent_correct_by_column = correct_by_column / total_iterations
+
+            # Calculate average error by column only considering non-matching entries
+            # Only consider non-matching entries for average error
+            with np.errstate(invalid='ignore'):
+                sum_error = np.sum(error, axis=0, keepdims=True)
+                count_non_matches = np.sum(~matches, axis=0, keepdims=True)
+                # Avoid division by zero: set average error to 0 where all entries match
+                average_error_by_column = np.where(count_non_matches == 0, 0, sum_error / count_non_matches)
             
             # Bin the error for the error plot
             data_points_per_block = int(np.floor(sol_values.shape[0]/ self.Param.total_average_report_blocks))
@@ -233,11 +277,11 @@ class AutoGrader():
             if self.create_pull_request_comment:
                 with open(self.markdown_file, "w") as f:
                     print("", file=f)
-                    print("# :gear: Autograder Feedback :gear: #", file=f)
+                    print("# ⚙️ Autograder Feedback ⚙️ #", file=f)
                     print("", file=f)
-                    print(":alarm_clock: " + self.dtStylish(datetime.now(),"Autograded on %A, %B {th}, %Y at %H:%M:%S"), file=f)
+                    print("⏰ " + self.dtStylish(datetime.now(),"Autograded on %A, %B {th}, %Y at %H:%M:%S"), file=f)
                     print("", file=f)
-                    print("---", file=f)
+                    # print("---", file=f)
                     print("", file=f)
 
         def format_markdown_section(self, assignment_title, final_score, max_score, column_labels=None, percent_correct_by_column=None, average_error_by_column=None, iteration_of_first_error_by_column=None, binned_error=None, tolerance=1e-10, error_string=None):
@@ -246,19 +290,19 @@ class AutoGrader():
                 with open(self.markdown_file, "a") as f:
                     # Print assignment header
                     print("", file=f)
-                    print(f"## :memo: {assignment_title}", file=f)
+                    print(f"## 📝 {assignment_title}", file=f)
                     print("", file=f)
 
                     # Print the grade
                     if abs(final_score - max_score) < tolerance:
-                        print(f"### :white_check_mark: Grade: $\\color{{{self.rgb_to_hex(40,150,90)}}}{{\\mathbf{{{final_score:.2f}}}}}$/{int(max_score)}", file=f)
+                        print(f"### ✅ grade: $\\color{{{self.rgb_to_hex(40,150,90)}}}{{\\mathbf{{{final_score:.2f}}}}}$/{int(max_score)}", file=f)
                     else:
-                        print(f"### :x: Grade: $\\color{{{self.rgb_to_hex(186,28,33)}}}{{\\mathbf{{{final_score:.2f}}}}}$/{int(max_score)}", file=f)
+                        print(f"### ❌ grade: $\\color{{{self.rgb_to_hex(186,28,33)}}}{{\\mathbf{{{final_score:.2f}}}}}$/{int(max_score)}", file=f)
                     print("", file=f)
 
                     # If there was no error, print the detailed breakdown
                     if error_string is None:
-                        print("### :bar_chart: Detailed Breakdown of Results", file=f)
+                        print("### 📊 Detailed Breakdown of Results", file=f)
                         print("", file=f)
                         if len(column_labels) <= 20:
                             print("| Output | Tests Passed | Average Error | 1st Error | Error plot |", file=f)
@@ -267,7 +311,8 @@ class AutoGrader():
                             # for each function output
                             for col, column_name in enumerate(column_labels):
                                 # Generate a row in the table
-                                format_string = f"| {column_name} | {percent_correct_by_column[0, col]:.2%} | {average_error_by_column[0, col]:.2e} | {iteration_of_first_error_by_column[0, col]}"
+                                first_error = iteration_of_first_error_by_column[0, col] if iteration_of_first_error_by_column[0, col] != -1 else "None"
+                                format_string = f"| {column_name} | {percent_correct_by_column[0, col]:.2%} | {average_error_by_column[0, col]:.2e} | {first_error}"
                                 format_string += "|$"
 
                                 # Add the error plot
@@ -282,11 +327,28 @@ class AutoGrader():
 
                                 # Plot the row
                                 print(format_string, file=f)
+                        else:
+
+                            print("Too many outputs to display in table format", file=f)
+                            print("", file=f)
+
+                            # Percent correct
+                            print(f"- **Percent Correct:** {np.mean(percent_correct_by_column)}", file=f)
+
+                            # Exclude correct values from average error calculation
+                            average_error = np.mean(average_error_by_column[average_error_by_column != 0]) if np.any(average_error_by_column!=0) else 0.0
+                            print(f"- **Average Error:** {average_error}", file=f)
+
+                            # Only consider values which are not -1
+                            valid_first_errors = iteration_of_first_error_by_column[iteration_of_first_error_by_column != -1]
+                            if valid_first_errors.size > 0:
+                                min_first_error = np.min(valid_first_errors)
                             else:
-                                print("Too many outputs to display in table format", file=f)
+                                min_first_error = "None"
+                            print(f"- **Test Case of 1st Error:** {min_first_error}", file=f)
                     else:
                         # If there was an error, print the error message
-                        print("### :x: Error", file=f)
+                        print("### ❌ Error", file=f)
                         print("", file=f)
                         print("Autograding of this assignment failed due to an error given below. Please check the error message below and fix the code.", file=f)
                         print("", file=f)
@@ -294,51 +356,46 @@ class AutoGrader():
 
                     # Assignment footer
                     print("", file=f)
-                    print("---", file=f)
-                    print("", file=f)
 
-        def format_markdown_footer(self, canvas_submissoin_status):
+        def format_markdown_footer(self, canvas_submissoin_status, run_locally: bool = True):
             if self.create_pull_request_comment:
                 with open(self.markdown_file, "a") as f:
                     print("", file=f)
-                    print("- **1st Error** Indicates which test case first returned incorrect results. -1 means no error occured. When debugging, retrying these inputs is a good place to start.", file=f)
-                    print(f"- **Error Plot** Each block shows average error over several test cases. Green indicates all correct results, red indicates some incorrect results. " +
+                    print("---", file=f)
+                    print("", file=f)
+                    print("**1st Error** Indicates which test case first returned incorrect results. 'None' means no error occured. When debugging, retrying these inputs is a good place to start.", file=f)
+                    print("", file=f)
+                    print(f"**Error Plot** Each block shows average error over several test cases. Green indicates all correct results, red indicates some incorrect results. " +
                         "The darker the shade of red, the larger the error. This can be useful to see if the error is following a pattern (indicating an issue " +
                         "with persistent variables) or if it is random (indicating an issue with the algorithm).", file=f)
                     print("", file=f)
                     if canvas_submissoin_status:
-                        print("### :outbox_tray: Grades have been submitted to Canvas. Please check your grade on Canvas to confirm that it has been recorded correctly.", file=f)
-                        print("", file=f)
+                        print("📤 Grades have been submitted to Canvas. Please check your grade on Canvas to confirm that it has been recorded correctly.", file=f)
                     else:
-                        print("### :warning: There was an error submiting grades to Canvas. Please ensure you have provided the correct Github user ID to the Canvas survey. Speak with the instructor to resolve this issue.", file=f)
-                        print("", file=f)
-                    print("Please confirm your results by running the tests locally.", file=f)
+                        if run_locally:
+                            print("⚠️ This feedback is provided for information purposes only. These grades have NOT been submitted to Canvas. To submit to Canvas you must push this code to GitHub.", file=f)
+                        else:
+                            print("❌ There was an error submiting grades to Canvas. Please ensure you have provided the correct Github user ID to the Canvas survey. Speak with the instructor to resolve this issue.", file=f)
                     print("", file=f)
-                    print("**:gear: End of Autograder Feedback :gear:**", file=f)
+                    print("**⚙️ End of Autograder Feedback ⚙️**", file=f)
                     print("", file=f)
 
-        def run_auto_gradeing(self, assignment_indexes: list[int] = None, check_or_grade: str = "check") -> list[float]:
+        def run_auto_gradeing(self, assignment_indexes: list[int] = None, check_or_grade: str = "check", 
+                              verbose: bool = True, markdown_header_footer: bool = True) -> list[float]:
 
             # Get the assignments to generate data for
             if assignment_indexes is None:
                 assignment_indexes = range(len(self.assignments))
+
+            # Markdown header
+            if markdown_header_footer:
+                self.format_markdown_header()
 
             grades = [0.0]*len(assignment_indexes)
             for i,a in enumerate(assignment_indexes):
 
                 # Assignment title
                 assignment_title = self.assignments[a].title
-
-                # Convert class assignments to functions if needed
-                try:
-                    self.convert_objects_to_functions([a])
-                except Exception:
-                    error_string = f"Error instantiating the class '{self.assignments[a].class_to_evaluate.__name__}' for assignment '{self.assignments[a].title}'. Please check the class constructor. Error: \n\n" + traceback.format_exc()
-                    log(error_string, type="error")
-                    final_score = 0.0
-                    log(final_score, type="grade")
-                    self.format_markdown_section(assignment_title, final_score, self.assignments[a].max_score, error_string=error_string)
-                    continue
 
                 # Create the file names
                 check_file_name = f"DNE_{assignment_title}_checker_data.pkl"
@@ -356,18 +413,18 @@ class AutoGrader():
                     comparison_file = grade_file_path
 
                 # Generate the test data for the assignment
-                log(f"Generating TEST data for {self.assignments[a].title}...")
-                error_string = self.run_and_record(a, output_data_file = test_file_path, comparison_file = comparison_file)
+                if verbose: log(f"Generating TEST data for {self.assignments[a].title}...")
+                error_string = self.run_and_record(a, output_data_file = test_file_path, comparison_file = comparison_file, verbose=verbose)
                 if error_string is not None:
                     # If there was an error, log it and continue to the next assignment
                     log(error_string, type="error")
                     final_score = 0.0
-                    log(final_score, type="grade")
+                    log(f"{final_score}/{self.assignments[a].max_score}", type="grade")
                     self.format_markdown_section(assignment_title, final_score, self.assignments[a].max_score, error_string=error_string)
                     continue
 
-                # Grade the test data against the comparison file
-                log(f"Grading {self.assignments[a].title} by evaluating {test_file_path} against {comparison_file}...")
+                # grade the test data against the comparison file
+                if verbose: log(f"Grading {self.assignments[a].title} by evaluating {test_file_path} against {comparison_file}...")
                 percent_correct, column_labels, percent_correct_by_column, average_error_by_column, iteration_of_first_error_by_column, binned_error \
                     = self.grade_file(comparison_file, test_file_path, self.Param.tolerance)
 
@@ -377,10 +434,14 @@ class AutoGrader():
                 
                 # Log the results
                 log(f"Grading {self.assignments[a].title} completed.")
-                log(final_score, type="grade")
+                log(f"{final_score}/{self.assignments[a].max_score}", type="grade")
 
                 # Generate the markdown section for the assignment
                 self.format_markdown_section(assignment_title, final_score, self.assignments[a].max_score, column_labels=column_labels, percent_correct_by_column=percent_correct_by_column, average_error_by_column=average_error_by_column, iteration_of_first_error_by_column=iteration_of_first_error_by_column, binned_error=binned_error, tolerance=self.Param.tolerance)
+
+            # Markdown footer
+            if markdown_header_footer:
+                self.format_markdown_footer(canvas_submissoin_status=False, run_locally=(check_or_grade == "check"))
 
             return grades
 
@@ -392,9 +453,6 @@ class AutoGrader():
             # Get the assignments to generate data for
             if assignment_indexes is None:
                 assignment_indexes = range(len(self.assignments))
-
-            # Convert class assignments to functions if needed
-            self.convert_objects_to_functions(assignment_indexes)
 
             for a in assignment_indexes:
                 # Assignment title
@@ -422,7 +480,7 @@ class AutoGrader():
                 if error_string is not None:
                     # If there was an error, log it and continue to the next assignment
                     log(error_string, type="error")
-                    raise Exception(f"Error generating CHECK data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
+                    raise Exception(f"Error generating GRADE data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
                 
             # Get the current file path
             auto_grader_path = os.path.dirname(os.path.abspath(__file__))
@@ -435,17 +493,28 @@ class AutoGrader():
                     print("# select an assignment to check from the list below", file=f)
                     print("assignment_to_check = '" + self.assignments[0].title + "'", file=f)
                     print("", file=f)
+                    print("# Set this flag to True to check all assignments simultaneously", file=f)
+                    print("check_all_assignments = False", file=f)
+                    print("", file=f)
                     print("list_of_assignments = [", file=f)
                     for a in assignment_indexes:
                         print(f"    '{self.assignments[a].title}',", file=f)
                     print("]", file=f)
                     print("", file=f)
-                    print("# Find the index of the assignment to check", file=f)
-                    print("assignment_to_check_index = list_of_assignments.index(assignment_to_check)", file=f)
-                    print("", file=f)
-                    print("# Import the auto grader and run it", file=f)
+                    print("# Import the auto grader", file=f)
                     print("from DNE_assignment_info import auto_grader", file=f)
-                    print(f"auto_grader.run_auto_gradeing(assignment_indexes = [assignment_to_check_index])", file=f)
+                    print("", file=f)
+                    print("if check_all_assignments:", file=f)
+                    print("    # Evaluate all assignments", file=f)
+                    print("    import numpy as np", file=f)
+                    print("    auto_grader.run_auto_gradeing(assignment_indexes = np.arange(len(list_of_assignments)), verbose=False)", file=f)
+                    print("else:", file=f)
+                    print("    # Find the index of the assignment to check", file=f)
+                    print("    assignment_to_check_index = list_of_assignments.index(assignment_to_check)", file=f)
+                    print("", file=f)
+                    print("    # Evaluate the specific assignment", file=f)
+                    print("    auto_grader.run_auto_gradeing(assignment_indexes = [assignment_to_check_index])", file=f)
+                    
 
         def post_grades(self):
 
@@ -473,7 +542,7 @@ class AutoGrader():
             self.format_markdown_header()
 
             # Grading
-            grades = self.run_auto_gradeing(check_or_grade="grade")
+            grades = self.run_auto_gradeing(check_or_grade="grade", markdown_header_footer=False)
 
             # Default to submission success
             canvas_submissoin_status = True
@@ -500,126 +569,134 @@ class AutoGrader():
 
             # Posting grades to Canvas
             for i, (assignment, grade) in enumerate(zip(self.assignments, grades)):
+
+                # -------------------------------
+                # Setup
+                # -------------------------------
+
                 # Log the action
                 log(f"Posting grade {grade} for student {student_id} on assignment {assignment.id} ('{assignment.title}') in course {self.Param.course_id}")
 
                 # Configuration
-                API_URL = 'https://utahtech.instructure.com//api/v1'
-                API_TOKEN = args.canvas_api_token # Canvas API token - secret
-                COURSE_ID = self.Param.course_id # Replace with your course ID
-                ASSIGNMENT_ID = assignment.id # Replace with your assignment ID
-                STUDENT_ID = student_id # Replace with the Canvas user ID of the student
-                GRADE = grade #90.0  # Grade you want to assign
-                LATE_PENALTY = self.Param.late_penalty_per_day # Points lost per day late
-                LATE_GRADE_FLOOR = self.Param.late_penalty_floor  # Minimum grade to assign
+                api_url = 'https://utahtech.instructure.com//api/v1'
+                api_token = args.canvas_api_token # Canvas API token - secret
+                course_id = self.Param.course_id # Replace with your course ID
+                assignment_id = assignment.id # Replace with your assignment ID
+                student_id = student_id # Replace with the Canvas user ID of the student
+                late_penalty_per_day = self.Param.late_penalty_per_day # Points lost per day late
+                late_grade_floor = self.Param.late_penalty_floor  # Minimum grade to assign
 
                 # Extract rubric criterion IDs if they exist
-                ASSIGNMENT_ID, RUBRIC_CRITERION = ASSIGNMENT_ID.split(" ", 1) if " " in ASSIGNMENT_ID else (ASSIGNMENT_ID, None)
+                assignment_id, rubric_criterion = assignment_id.split(" ", 1) if " " in assignment_id else (assignment_id, None)
 
                 # -------------------------------
-                # Check for late penalty and previous score
+                # Retrive assignment and submission details
                 # -------------------------------
 
                 # Headers
                 headers = {
-                    'Authorization': f'Bearer {API_TOKEN}',
+                    'Authorization': f'Bearer {api_token}',
                     'Content-Type': 'application/json'
                 }
 
-                # API Endpoint
-                url = f"{API_URL}/courses/{COURSE_ID}/assignments/{ASSIGNMENT_ID}"
                 # Request to Retrieve Assignment Details
+                url = f"{api_url}/courses/{course_id}/assignments/{assignment_id}"
                 assignment_response = requests.get(url, headers=headers)
 
-                # API Endpoint
-                url = f"{API_URL}/courses/{COURSE_ID}/assignments/{ASSIGNMENT_ID}/submissions/{STUDENT_ID}"
-                # Request to Retrieve Assignment Details
+                # Request to Retrieve Submission Details
+                url = f"{api_url}/courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}"
                 submission_response = requests.get(url, headers=headers, params={"include[]": "rubric_assessment"})
 
-                # Check if the request was successful
-                if assignment_response.status_code == 200:
-                    assignment_json = assignment_response.json()
+                # -------------------------------
+                # Unpack responses
+                # -------------------------------    
 
-                    # Apply late penalty if applicable
-                    due_at = assignment_json.get('due_at')
-
-                    if due_at:
-                        # Convert due date string to datetime object
-                        due_date = datetime.strptime(due_at, '%Y-%m-%dT%H:%M:%SZ')
-                        due_date = due_date.replace(tzinfo=timezone.utc)
-
-                        # Get current UTC time
-                        current_time = datetime.now(timezone.utc)
-
-                        # Calculate days since due date
-                        delta = (current_time - due_date).days
-
-                        if delta <= 0:
-                            log("The assignment is submitted before the due date.")
-                        else:
-                            log(f"The assignment is {delta+1} day(s) overdue (rounded up).", type="warning")
-                            
-                            # Apply late penalty
-                            NEW_GRADE = GRADE
-                            if NEW_GRADE > LATE_GRADE_FLOOR/100.0*assignment.max_score:
-                                NEW_GRADE = max(LATE_GRADE_FLOOR/100.0*assignment.max_score, GRADE - (LATE_PENALTY/100.0*assignment.max_score * (delta+1)))
-                            log(f"Late penalty: {GRADE - NEW_GRADE} points", type="warning")
-                            log(f"New grade after applying late penalty: {NEW_GRADE}", type="warning")
-                            GRADE = NEW_GRADE
-
-                    else:
-                        log("This assignment has no due date.")
-                else:
+                # Unpack the assignment
+                if assignment_response.status_code != 200:
                     log(f"Failed to retrieve assignment. Status Code: {response.status_code} Response: {response.text}", type="error")
                     canvas_submissoin_status = False
                     continue
+                else:
+                    assignment_json = assignment_response.json()
 
-                if submission_response.status_code == 200:
+                # Unpack the submission
+                if submission_response.status_code != 200:
+                    log(f"Failed to retrieve previous submission. Status Code: {response.status_code} Response: {response.text}", type="warning")
+                    previous_grade = 0
+                    submission = None
+                else: 
                     submission = submission_response.json()
-                    if RUBRIC_CRITERION is None:
+                    if rubric_criterion is None:
                         grade_value = submission.get('grade')
                         previous_grade = float(grade_value) if grade_value is not None else 0.0 
                     else:
                         # If rubric criterion is specified, get the grade from the rubric
                         rubric = submission.get('rubric_assessment', {})
-                        criterion = rubric.get(RUBRIC_CRITERION, {})
+                        criterion = rubric.get(rubric_criterion, {})
                         grade_value = criterion.get('points', 0.0)
                         previous_grade = float(grade_value) if grade_value is not None else 0.0
                     log(f"Previous submission grade: {previous_grade}")
-                else:
-                    log(f"Failed to retrieve previous submission. Status Code: {response.status_code} Response: {response.text}", type="warning")
-                    previous_grade = 0
 
-                if previous_grade is not None and previous_grade > GRADE:
-                    log(f"Previous grade {previous_grade} is higher than the new grade {GRADE}. NOT posting the new grade.", type="warning")
+                # -------------------------------
+                # Late Penalty Calculation
+                # -------------------------------
+
+                # Apply late penalty if applicable
+                due_at = assignment_json.get('due_at')
+
+                if due_at:
+                    # Convert due date string to datetime object
+                    due_date = datetime.strptime(due_at, '%Y-%m-%dT%H:%M:%SZ')
+                    due_date = due_date.replace(tzinfo=timezone.utc)
+
+                    # Get current UTC time
+                    current_time = datetime.now(timezone.utc)
+
+                    # Calculate days since due date
+                    delta = (current_time - due_date).days
+
+                    if delta <= 0:
+                        log("The assignment is submitted before the due date.")
+                    else:
+                        log(f"The assignment is {delta+1} day(s) overdue (rounded up).", type="warning")
+                        
+                        # Apply late penalty
+                        new_grade = grade
+                        if new_grade > late_grade_floor/100.0*assignment.max_score:
+                            new_grade = max(late_grade_floor/100.0*assignment.max_score, 
+                                            grade - (late_penalty_per_day/100.0*assignment.max_score * (delta+1)))
+                        log(f"Late penalty: {grade - new_grade} points", type="warning")
+                        log(f"New grade after applying late penalty: {new_grade}", type="warning")
+                        grade = new_grade
+
+                else:
+                    log("This assignment has no due date.")
+
+                # -------------------------------
+                # Don't lower the grade
+                # -------------------------------
+
+                if (previous_grade is not None and previous_grade >= grade) or (previous_grade is None and new_grade == 0):
+                    log(f"Previous grade {previous_grade} is equal to or higher than the new grade {grade}. NOT posting the new grade.", type="warning")
                     continue
 
                 # -------------------------------
-                # Post grade
+                # Update the rubric or score
                 # -------------------------------
 
-                # API Endpoint
-                url = f"{API_URL}/courses/{COURSE_ID}/assignments/{ASSIGNMENT_ID}/submissions/{STUDENT_ID}"
-
-                # Headers
-                headers = {
-                    'Authorization': f'Bearer {API_TOKEN}',
-                    'Content-Type': 'application/json'
-                }
-
-                if RUBRIC_CRITERION is None:
+                if rubric_criterion is None:
                     # Payload
                     payload = {
                         'submission': {
-                            'posted_grade': GRADE
+                            'posted_grade': grade
                         },
                         'comment': {
-                            'text_comment': f"Grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}.",
+                            'text_comment': f"grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}.",
                         }
                     }
                 else:
                     rubric = submission.get("rubric_assessment", {})
-                    rubric[RUBRIC_CRITERION] = {"points": NEW_GRADE, "comments": f"Grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}."}
+                    rubric[rubric_criterion] = {"points": new_grade, "comments": f"grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}."}
                     score_list = [criterion.get("points", None) for criterion in rubric.values()]
                     # Check if there is a missing score in score_list
                     if any(s is None for s in score_list):
@@ -633,12 +710,17 @@ class AutoGrader():
                                 'rubric_assessment': rubric
                         }
 
+                # -------------------------------
+                # Post Grade
+                # -------------------------------
+
                 # POST Request
+                url = f"{api_url}/courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}"
                 response = requests.put(url, headers=headers, json=payload)
 
                 # Response Check
                 if response.status_code == 200:
-                    log(f"✅ Grade successfully posted.")
+                    log(f"✅ grade successfully posted.")
                 else:
                     log(f"Failed to post grade. Status Code: {response.status_code} Response: {response.text}", type="error")
                     canvas_submissoin_status = False
@@ -693,12 +775,18 @@ class AutoGrader():
                 pickle.dump(combined_data, f)
 
         @staticmethod
-        def generate_random_input(shape: tuple, ranges: np.ndarray) -> np.ndarray:
-            if ranges.shape[0:len(shape)] != shape:
-                log(f"Input shape {shape} does not match ranges shape {ranges.shape}.", type="error")
-            low = ranges[...,0]
-            high = ranges[...,1]
-            return np.random.uniform(low, high)
+        def generate_random_input(shape: tuple | int, ranges: np.ndarray | tuple) -> np.ndarray:
+            if isinstance(shape, tuple):
+                if ranges.shape[0:len(shape)] != shape:
+                    log(f"Input shape {shape} does not match ranges shape {ranges.shape}.", type="error")
+                low = ranges[...,0]
+                high = ranges[...,1]
+                return np.random.uniform(low, high)
+            elif shape == SCALAR_IO:
+                low = ranges[0]
+                high = ranges[1]
+                return np.random.uniform(low, high)
+            
 
         @staticmethod
         def load_data_from_pkl(data_file: str, required_modules) -> tuple[dict[str, np.ndarray],list[dict[str, np.ndarray]],list[dict[str, np.ndarray]]]:
