@@ -370,12 +370,22 @@ class AutoGrader():
                     print("**⚙️ End of Autograder Feedback ⚙️**", file=f)
                     print("", file=f)
 
-        def run_auto_gradeing(self, assignment_indexes: list[int] = None, check_or_grade: str = "check", 
-                              verbose: bool = True, markdown_header_footer: bool = True) -> list[float]:
+        def run_auto_gradeing(self, assignment_indexes: list[int] = None, assignment_title: str = None,
+                              check_or_grade: str = "check", verbose: bool = True, markdown_header_footer: bool = True
+                              ) -> list[float]:
 
             # Get the assignments to generate data for
-            if assignment_indexes is None:
+            if assignment_indexes is None and assignment_title is None:
                 assignment_indexes = range(len(self.assignments))
+            elif assignment_indexes is None and assignment_title is not None:
+                list_of_assignments = [a.title for a in self.assignments]
+                # Find the index of the assignment to check
+                if assignment_title in list_of_assignments:
+                    assignment_indexes = [list_of_assignments.index(assignment_title)]
+                else:
+                    log(f"Assignment '{assignment_title}' not found in the list of assignments. Please check the assignment_to_check variable in the "  
+                        + "run_code_checker file. Also make sure you have selected your course in the student_settings file.", type="error")
+                    return []
 
             # Markdown header
             if markdown_header_footer:
@@ -497,13 +507,10 @@ class AutoGrader():
                     print("if check_all_assignments:", file=f)
                     print("    # Evaluate all assignments", file=f)
                     print("    import numpy as np", file=f)
-                    print("    auto_grader.run_auto_gradeing(assignment_indexes = np.arange(len(list_of_assignments)), verbose=False)", file=f)
+                    print("    auto_grader.run_auto_gradeing(verbose=False)", file=f)
                     print("else:", file=f)
-                    print("    # Find the index of the assignment to check", file=f)
-                    print("    assignment_to_check_index = list_of_assignments.index(assignment_to_check)", file=f)
-                    print("", file=f)
                     print("    # Evaluate the specific assignment", file=f)
-                    print("    auto_grader.run_auto_gradeing(assignment_indexes = [assignment_to_check_index])", file=f)
+                    print("    auto_grader.run_auto_gradeing(assignment_title=assignment_to_check, verbose=False)", file=f)
                     
         def post_grades(self):
 
@@ -602,7 +609,7 @@ class AutoGrader():
 
                 # Unpack the assignment
                 if assignment_response.status_code != 200:
-                    log(f"Failed to retrieve assignment. Status Code: {response.status_code} Response: {response.text}", type="error")
+                    log(f"Failed to retrieve assignment. Status Code: {assignment_response.status_code} Response: {assignment_response.text}", type="error")
                     canvas_submissoin_status = False
                     continue
                 else:
@@ -610,7 +617,7 @@ class AutoGrader():
 
                 # Unpack the submission
                 if submission_response.status_code != 200:
-                    log(f"Failed to retrieve previous submission. Status Code: {response.status_code} Response: {response.text}", type="warning")
+                    log(f"Failed to retrieve student's assignment submission information. Make sure you have selected your course in the student_settings file. Status Code: {submission_response.status_code} Response: {submission_response.text}", type="warning")
                     previous_grade = 0
                     submission = None
                 else: 
@@ -705,13 +712,13 @@ class AutoGrader():
 
                 # POST Request
                 url = f"{api_url}/courses/{course_id}/assignments/{assignment_id}/submissions/{student_id}"
-                response = requests.put(url, headers=headers, json=payload)
+                post_grade_response = requests.put(url, headers=headers, json=payload)
 
                 # Response Check
-                if response.status_code == 200:
+                if post_grade_response.status_code == 200:
                     log(f"✅ grade successfully posted.")
                 else:
-                    log(f"Failed to post grade. Status Code: {response.status_code} Response: {response.text}", type="error")
+                    log(f"Failed to post grade. Status Code: {post_grade_response.status_code} Response: {post_grade_response.text}", type="error")
                     canvas_submissoin_status = False
             
             # Pull request comment footer
