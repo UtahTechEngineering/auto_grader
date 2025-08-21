@@ -665,7 +665,7 @@ class AutoGrader():
                 # Don't lower the grade
                 # -------------------------------
 
-                if (previous_grade is not None and previous_grade >= grade) or (previous_grade is None and new_grade == 0):
+                if (previous_grade is not None and previous_grade >= grade) or (previous_grade is None and grade == 0):
                     log(f"Previous grade {previous_grade} is equal to or higher than the new grade {grade}. NOT posting the new grade.", type="warning")
                     continue
 
@@ -685,7 +685,7 @@ class AutoGrader():
                     }
                 else:
                     rubric = submission.get("rubric_assessment", {})
-                    rubric[rubric_criterion] = {"points": new_grade, "comments": f"grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}."}
+                    rubric[rubric_criterion] = {"points": grade, "comments": f"grade posted via AutoGrader on {self.dtStylish(datetime.now(), '%A, %B {th}, %Y at %H:%M:%S')}."}
                     score_list = [criterion.get("points", None) for criterion in rubric.values()]
                     # Check if there is a missing score in score_list
                     if any(s is None for s in score_list):
@@ -776,7 +776,6 @@ class AutoGrader():
                 high = ranges[1]
                 return np.random.uniform(low, high)
             
-
         @staticmethod
         def load_data_from_pkl(data_file: str, required_modules) -> tuple[dict[str, np.ndarray],list[dict[str, np.ndarray]],list[dict[str, np.ndarray]]]:
             """
