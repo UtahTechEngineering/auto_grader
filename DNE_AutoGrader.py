@@ -22,6 +22,7 @@ from .DNE_HiddenPrints import HiddenPrints
 import argparse
 from datetime import datetime, timezone
 import shutil
+import copy
 try:
     import importlib
     import pickle
@@ -69,23 +70,6 @@ class AutoGrader():
             self.roster_file = os.path.join(self.private_data_file_path, '_roster.csv')
 
             self.create_pull_request_comment = True
-            
-
-        def convert_objects_to_functions(self, assignment_indexes: list[int] = None, class_inputs: dict = None):
-            """
-            Convert class assignments to functions that can be run.
-            This is useful for running the autograder on a function instead of a class.
-            """
-
-            for i in assignment_indexes:
-                if isinstance(self.assignments[i].function_to_evaluate, str):
-                    # Create an instance of the class
-                    with HiddenPrints():
-                        instance = self.assignments[i].class_to_evaluate(**class_inputs)
-
-                    # Convert the method to a function
-                    self.assignments[i].function_to_evaluate = getattr(instance, self.assignments[i].function_to_evaluate)
-                    self.assignments[i].class_to_evaluate = self.assignments[i].class_to_evaluate.__name__
 
         def run_and_record(self, assignment_index: int, output_data_file: str, comparison_file: str = None, verbose: bool = True
         ) -> str:
@@ -101,7 +85,7 @@ class AutoGrader():
 
             # Get the name of the class we're checking
             if assignment.class_to_evaluate is not None:
-                class_text = f" in class '{assignment.class_to_evaluate}'"
+                class_text = f" in class '{assignment.class_to_evaluate.__name__}'"
             else:
                 class_text = ""
 
@@ -134,13 +118,19 @@ class AutoGrader():
                 # Class inputs
                 class_inputs = assignment.class_inputs if assignment.class_inputs is not None else {}
             
-            # Convert class assignments to functions if needed
-            try:
-                self.convert_objects_to_functions([assignment_index], class_inputs)
-            except Exception:
-                return f"Error instantiating the class '{self.assignments[assignment_index].class_to_evaluate.__name__}' for assignment '{self.assignments[assignment_index].title}'. Please check the class constructor. Error: \n\n" + traceback.format_exc()
+            # Get the function to evaluate
+            if isinstance(assignment.function_to_evaluate, str):
+                # Create an instance of the class
+                try:
+                    with HiddenPrints():
+                        instance = assignment.class_to_evaluate(**class_inputs)
+                        function_to_evaluate = getattr(instance, assignment.function_to_evaluate)
+                except Exception:
+                    return f"Error instantiating the class '{assignment.class_to_evaluate.__name__}' for assignment '{assignment.title}'. Please check the class constructor. Error: \n\n" + traceback.format_exc()
             else:
+                # If the function is already a callable, use it directly
                 function_to_evaluate = assignment.function_to_evaluate
+            
 
             # Evaluate function and collect results
             try:
@@ -515,7 +505,6 @@ class AutoGrader():
                     print("    # Evaluate the specific assignment", file=f)
                     print("    auto_grader.run_auto_gradeing(assignment_indexes = [assignment_to_check_index])", file=f)
                     
-
         def post_grades(self):
 
             # Warn students not to use this method
