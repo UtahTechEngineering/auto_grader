@@ -75,7 +75,7 @@ class AutoGrader():
         ) -> str:
 
             # Delete the old output file if it exists
-            with open(output_data_file, "w") as f:
+            with open(output_data_file, "w", encoding='utf-8') as f:
                 f.write(" ")
 
             # get the assignmnet information
@@ -265,7 +265,7 @@ class AutoGrader():
 
         def format_markdown_header(self):
             if self.create_pull_request_comment:
-                with open(self.markdown_file, "w") as f:
+                with open(self.markdown_file, "w", encoding='utf-8') as f:
                     print("", file=f)
                     print("# ⚙️ Autograder Feedback ⚙️ #", file=f)
                     print("", file=f)
@@ -277,7 +277,7 @@ class AutoGrader():
         def format_markdown_section(self, assignment_title, final_score, max_score, column_labels=None, percent_correct_by_column=None, average_error_by_column=None, iteration_of_first_error_by_column=None, binned_error=None, tolerance=1e-10, error_string=None):
 
             if self.create_pull_request_comment:
-                with open(self.markdown_file, "a") as f:
+                with open(self.markdown_file, "a", encoding='utf-8') as f:
                     # Print assignment header
                     print("", file=f)
                     print(f"## 📝 {assignment_title}", file=f)
@@ -349,7 +349,7 @@ class AutoGrader():
 
         def format_markdown_footer(self, canvas_submissoin_status, run_locally: bool = True):
             if self.create_pull_request_comment:
-                with open(self.markdown_file, "a") as f:
+                with open(self.markdown_file, "a", encoding='utf-8') as f:
                     print("", file=f)
                     print("---", file=f)
                     print("", file=f)
@@ -489,7 +489,7 @@ class AutoGrader():
             # Create the check file
             check_file = os.path.join(root_file_path, f"run_code_checker.py")
             if not os.path.exists(check_file) or overwrite:
-                with open(check_file, "w") as f:
+                with open(check_file, "w", encoding='utf-8') as f:
                     print("# select an assignment to check from the list below", file=f)
                     print("assignment_to_check = '" + self.assignments[0].title + "'", file=f)
                     print("", file=f)
@@ -857,7 +857,7 @@ class AutoGrader():
             # Create the roster file if it does not exist
             roster_file = os.path.join(private_data_folder, "_roster.csv")
             if not os.path.exists(roster_file) or overwrite:
-                with open(roster_file, "w") as f:
+                with open(roster_file, "w", encoding='utf-8') as f:
                     print("github_username,canvas_student_id", file=f)
             
             # ---------------------------------------------------------------
@@ -867,14 +867,14 @@ class AutoGrader():
             # Create the generator file if it does not exist
             gen_file = os.path.join(root_file_path, "_create_assignment_files.py")
             if not os.path.exists(gen_file) or overwrite:
-                with open(gen_file, "w") as f:
+                with open(gen_file, "w", encoding='utf-8') as f:
                     print("from DNE_assignment_info import auto_grader", file=f)
                     print("auto_grader.create_assignment_files()", file=f)
 
             # Create the post grades file if it does not exist
             post_file = os.path.join(root_file_path, "DNE_github_grade_on_push.py")
             if not os.path.exists(post_file) or overwrite:
-                with open(post_file, "w") as f:
+                with open(post_file, "w", encoding='utf-8') as f:
                     for line in AutoGrader.DNE_text:
                         print(line, file=f)
                     print("from DNE_assignment_info import auto_grader", file=f)

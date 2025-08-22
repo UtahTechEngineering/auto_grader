@@ -89,7 +89,7 @@ def log(message: str, type: str = "info"):
             # Get the current log file content
             lines = []
             try:
-                with open(filepath, 'r') as f:
+                with open(filepath, 'r', encoding='utf-8') as f:
                     lines = f.readlines()
             except FileNotFoundError:
                 pass
@@ -102,7 +102,7 @@ def log(message: str, type: str = "info"):
                 lines = lines[-max_lines:]  # Keep only the latest 'max_lines'
                 
             # Write the (potentially truncated) lines back to the file
-            with open(filepath, 'w') as f:
+            with open(filepath, 'w', encoding='utf-8') as f:
                 f.writelines(lines)
 
 # Mark the begining of a logging session
