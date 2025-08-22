@@ -105,7 +105,7 @@ All of these variables are used to create an `Assignment` object which is then a
 
 You also need to set up the `_<root>_private_data/_roster.csv` file. To do this you need the Github username for each student and the Canvas Student ID for each student. Notably, this is not your institution student ID. Canvas assigns an ID to each student. Like the course ID the student ID can be found by navigating to `Grades` tab, clicking on a student name, clicking on their name again in the tab that appears, and looking at the URL. The student ID is the number at the end. However, in a large class I suggest creating an quiz (I suggest making it a survey so credit can be given for completion) with a single essay question asking students to type in their Github Username. Tell the students to make sure it is typed correctly (spelling, case, and no extra white space). Then download their answers by clicking `Student Analysis` in the `Statistics` tab of the survey. The Canvas student ID is the ID column of the generated CSV. The Github usernames are also list in this CSV. So you can copy both over to the appropriate column of the roster `_<root>_private_data/_roster.csv`.
 
-Finally, open the file `.github/workflows/classroom.yml` and find the comment `# private grader repository goes here`. Put the following there: `<your orginization name>/_<root>_private_data`
+Finally, open the file `.github/workflows/classroom.yml` and find the comment `# private grader repository AND originization name goes here`. Put the following there: `<your orginization name>/_<root>_private_data`. Then find the comment `# private grader repository goes here` and replace the path with `_<root>_private_data`.
 
 #### Tips for Setting Up Assignmnets
 

@@ -32,9 +32,9 @@ jobs:
     - name: Checkout private data repo
       uses: actions/checkout@v4
       with:
-        repository: <your orginization name>/_<root>_private_data # private grader repository goes here
+        repository: <your orginization name>/_<root>_private_data # private grader repository AND originization name goes here
         token: ${{ secrets.GH_PAT }} # `PAT` is a secret that contains your PAT
-        path: _auto_grader_testing_private_data
+        path: _auto_grader_testing_private_data # private grader repository goes here
 
     - name: Set up Python
       uses: actions/setup-python@v4
