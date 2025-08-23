@@ -21,7 +21,7 @@ on:
 jobs:
   grade-and-comment:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10 # This job will be cancelled if it runs for more than 10 minutes
     steps:
     - name: Checkout student repository
       uses: actions/checkout@v3
