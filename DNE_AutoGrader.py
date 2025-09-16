@@ -468,19 +468,21 @@ class AutoGrader():
                 grade_file_path = os.path.join(self.private_data_file_path, grade_file_name)
                 # test_file_path = os.path.join(self.public_data_file_path, test_file_name)
 
-                log(f"Generating CHECK data for {self.assignments[a].title}...")
-                error_string = self.run_and_record(a, check_file_path)
-                if error_string is not None:
-                    # If there was an error, log it and continue to the next assignment
-                    log(error_string, type="error")
-                    raise Exception(f"Error generating CHECK data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
+                if not os.path.exists(check_file_path) or overwrite:
+                    log(f"Generating CHECK data for {self.assignments[a].title}...")
+                    error_string = self.run_and_record(a, check_file_path)
+                    if error_string is not None:
+                        # If there was an error, log it and continue to the next assignment
+                        log(error_string, type="error")
+                        raise Exception(f"Error generating CHECK data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
                 
-                log(f"Generating GRADE data for {self.assignments[a].title}...")
-                error_string = self.run_and_record(a, grade_file_path)
-                if error_string is not None:
-                    # If there was an error, log it and continue to the next assignment
-                    log(error_string, type="error")
-                    raise Exception(f"Error generating GRADE data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
+                if not os.path.exists(grade_file_path) or overwrite:
+                    log(f"Generating GRADE data for {self.assignments[a].title}...")
+                    error_string = self.run_and_record(a, grade_file_path)
+                    if error_string is not None:
+                        # If there was an error, log it and continue to the next assignment
+                        log(error_string, type="error")
+                        raise Exception(f"Error generating GRADE data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
                 
             # Get the current file path
             auto_grader_path = os.path.dirname(os.path.abspath(__file__))
