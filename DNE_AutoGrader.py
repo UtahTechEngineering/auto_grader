@@ -25,7 +25,7 @@ import shutil
 import copy
 try:
     import importlib
-    import pickle
+    import dill as pickle
     import numpy as np
     import requests
 except ImportError:
@@ -435,7 +435,7 @@ class AutoGrader():
 
             return grades
 
-        def create_assignment_files(self, assignment_indexes: list[int] = None, assignment_title: str = None, overwrite: bool = False):
+        def create_assignment_files(self, assignment_indexes: list[int] = None, assignment_title: str = None, overwrite_data_files: bool = False, overwrite_run_file: bool = True):
 
             # Warn students not to use this method
             log("This method is not for students. It will override important autograding files with junk data. If you accidentally run it then you need to use git to reset those files.", type="warning")
@@ -457,7 +457,7 @@ class AutoGrader():
                 grade_file_path = os.path.join(self.private_data_file_path, grade_file_name)
                 # test_file_path = os.path.join(self.public_data_file_path, test_file_name)
 
-                if not os.path.exists(check_file_path) or overwrite:
+                if not os.path.exists(check_file_path) or overwrite_data_files:
                     log(f"Generating CHECK data for {self.assignments[a].title}...")
                     error_string = self.run_and_record(a, check_file_path)
                     if error_string is not None:
@@ -465,7 +465,7 @@ class AutoGrader():
                         log(error_string, type="error")
                         raise Exception(f"Error generating CHECK data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
                 
-                if not os.path.exists(grade_file_path) or overwrite:
+                if not os.path.exists(grade_file_path) or overwrite_data_files:
                     log(f"Generating GRADE data for {self.assignments[a].title}...")
                     error_string = self.run_and_record(a, grade_file_path)
                     if error_string is not None:
@@ -479,7 +479,7 @@ class AutoGrader():
 
             # Create the check file
             check_file = os.path.join(root_file_path, f"run_code_checker.py")
-            if not os.path.exists(check_file) or overwrite:
+            if not os.path.exists(check_file) or overwrite_run_file:
                 with open(check_file, "w", encoding='utf-8') as f:
                     print("# select an assignment to check from the list below", file=f)
                     print("assignment_to_check = '" + self.assignments[0].title + "'", file=f)
