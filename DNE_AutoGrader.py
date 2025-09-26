@@ -435,7 +435,8 @@ class AutoGrader():
 
             return grades
 
-        def create_assignment_files(self, assignment_indexes: list[int] = None, assignment_title: str = None, overwrite_data_files: bool = False, overwrite_run_file: bool = True):
+        def create_assignment_files(self, assignment_indexes: list[int] = None, assignment_title: str = None, 
+                                    overwrite_data_files: bool = False, overwrite_run_file: bool = True):
 
             # Warn students not to use this method
             log("This method is not for students. It will override important autograding files with junk data. If you accidentally run it then you need to use git to reset those files.", type="warning")
@@ -759,7 +760,7 @@ class AutoGrader():
 
             # Save the combined data to a pickle file
             with open(data_file, "wb") as f:
-                pickle.dump(combined_data, f)
+                pickle.dump(combined_data, f, byref=False, recurse=True)
 
         @staticmethod
         def generate_random_input(shape: tuple | int, ranges: np.ndarray | tuple) -> np.ndarray:
