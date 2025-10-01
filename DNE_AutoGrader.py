@@ -25,7 +25,7 @@ import shutil
 import copy
 try:
     import importlib
-    import pickle
+    import dill as pickle
     import numpy as np
     import requests
 except ImportError:
@@ -374,18 +374,8 @@ class AutoGrader():
                               check_or_grade: str = "check", verbose: bool = True, markdown_header_footer: bool = True
                               ) -> list[float]:
 
-            # Get the assignments to generate data for
-            if assignment_indexes is None and assignment_title is None:
-                assignment_indexes = range(len(self.assignments))
-            elif assignment_indexes is None and assignment_title is not None:
-                list_of_assignments = [a.title for a in self.assignments]
-                # Find the index of the assignment to check
-                if assignment_title in list_of_assignments:
-                    assignment_indexes = [list_of_assignments.index(assignment_title)]
-                else:
-                    log(f"Assignment '{assignment_title}' not found in the list of assignments. Please check the assignment_to_check variable in the "  
-                        + "run_code_checker file. Also make sure you have selected your course in the student_settings file.", type="error")
-                    return []
+            # Get a list of assignment indexes to grade
+            assignment_indexes = self.get_assignment_indexes(self.assignments, assignment_indexes, assignment_title)
 
             # Markdown header
             if markdown_header_footer:
@@ -445,14 +435,14 @@ class AutoGrader():
 
             return grades
 
-        def create_assignment_files(self, assignment_indexes: list[int] = None, overwrite: bool = False):
+        def create_assignment_files(self, assignment_indexes: list[int] = None, assignment_title: str = None, 
+                                    overwrite_data_files: bool = False, overwrite_run_file: bool = True):
 
             # Warn students not to use this method
             log("This method is not for students. It will override important autograding files with junk data. If you accidentally run it then you need to use git to reset those files.", type="warning")
 
-            # Get the assignments to generate data for
-            if assignment_indexes is None:
-                assignment_indexes = range(len(self.assignments))
+            # Get a list of assignment indexes to grade
+            assignment_indexes = self.get_assignment_indexes(self.assignments, assignment_indexes, assignment_title)
 
             for a in assignment_indexes:
                 # Assignment title
@@ -468,19 +458,21 @@ class AutoGrader():
                 grade_file_path = os.path.join(self.private_data_file_path, grade_file_name)
                 # test_file_path = os.path.join(self.public_data_file_path, test_file_name)
 
-                log(f"Generating CHECK data for {self.assignments[a].title}...")
-                error_string = self.run_and_record(a, check_file_path)
-                if error_string is not None:
-                    # If there was an error, log it and continue to the next assignment
-                    log(error_string, type="error")
-                    raise Exception(f"Error generating CHECK data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
+                if not os.path.exists(check_file_path) or overwrite_data_files:
+                    log(f"Generating CHECK data for {self.assignments[a].title}...")
+                    error_string = self.run_and_record(a, check_file_path)
+                    if error_string is not None:
+                        # If there was an error, log it and continue to the next assignment
+                        log(error_string, type="error")
+                        raise Exception(f"Error generating CHECK data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
                 
-                log(f"Generating GRADE data for {self.assignments[a].title}...")
-                error_string = self.run_and_record(a, grade_file_path)
-                if error_string is not None:
-                    # If there was an error, log it and continue to the next assignment
-                    log(error_string, type="error")
-                    raise Exception(f"Error generating GRADE data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
+                if not os.path.exists(grade_file_path) or overwrite_data_files:
+                    log(f"Generating GRADE data for {self.assignments[a].title}...")
+                    error_string = self.run_and_record(a, grade_file_path)
+                    if error_string is not None:
+                        # If there was an error, log it and continue to the next assignment
+                        log(error_string, type="error")
+                        raise Exception(f"Error generating GRADE data for {self.assignments[a].title}. Please check the error message below. \n {error_string}")
                 
             # Get the current file path
             auto_grader_path = os.path.dirname(os.path.abspath(__file__))
@@ -488,7 +480,7 @@ class AutoGrader():
 
             # Create the check file
             check_file = os.path.join(root_file_path, f"run_code_checker.py")
-            if not os.path.exists(check_file) or overwrite:
+            if not os.path.exists(check_file) or overwrite_run_file:
                 with open(check_file, "w", encoding='utf-8') as f:
                     print("# select an assignment to check from the list below", file=f)
                     print("assignment_to_check = '" + self.assignments[0].title + "'", file=f)
@@ -768,7 +760,7 @@ class AutoGrader():
 
             # Save the combined data to a pickle file
             with open(data_file, "wb") as f:
-                pickle.dump(combined_data, f)
+                pickle.dump(combined_data, f, byref=False, recurse=True)
 
         @staticmethod
         def generate_random_input(shape: tuple | int, ranges: np.ndarray | tuple) -> np.ndarray:
@@ -902,6 +894,26 @@ class AutoGrader():
             if not os.path.exists(installed_file) or overwrite:
                 shutil.copy(provided_file, installed_file)
             
+        @staticmethod
+        def get_assignment_indexes(assignments: list, assignment_indexes: list[int] = None, assignment_title: str = None,) -> list[int]:
+            """
+            Get a list of assignment titles from a list of Assignment objects.
+            """
+            # Get the assignments to generate data for
+            if assignment_indexes is None and assignment_title is None:
+                assignment_indexes = range(len(assignments))
+            elif assignment_indexes is None and assignment_title is not None:
+                list_of_assignments = [a.title for a in assignments]
+                # Find the index of the assignment to check
+                if assignment_title in list_of_assignments:
+                    assignment_indexes = [list_of_assignments.index(assignment_title)]
+                else:
+                    log(f"Assignment '{assignment_title}' not found in the list of assignments. Please check the assignment_to_check variable in the "  
+                        + "run_code_checker file. Also make sure you have selected your course in the student_settings file.", type="error")
+                    return []
+                
+            return assignment_indexes
+
 ########################################################################################
 # 
 #  ____    ___        _   _   ___   _____       _____  ____   _ __  _____ 
