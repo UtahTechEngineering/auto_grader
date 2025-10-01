@@ -12,6 +12,7 @@
 ########################################################################################
 
 import os
+import sys
 
 # Logging parameters
 print_to_log_file = True
@@ -73,7 +74,7 @@ def log(message: str, type: str = "info"):
         message = f"{type}: {message}"
 
         if to_print and print_to_console:
-            print(message)
+            print(message, file=sys.stderr)
         
         if to_print and print_to_log_file:
 
