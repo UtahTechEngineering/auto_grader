@@ -137,9 +137,11 @@ class AutoGrader():
                 if verbose: log(f"⚙️ Evaluating function '{function_to_evaluate.__name__}'{class_text} with {len(input_sets)} input sets...")
                 output_sets = []
                 for inputs in input_sets:
+                    # Deep-copy numpy arrays to prevent in-place modifications from corrupting saved inputs
+                    inputs_copy = {k: v.copy() if isinstance(v, np.ndarray) else copy.deepcopy(v) for k, v in inputs.items()}
                     # Ensure inputs match expected shapes
                     with HiddenPrints():
-                        outputs = function_to_evaluate(**inputs)
+                        outputs = function_to_evaluate(**inputs_copy)
 
                     if outputs is not None and not isinstance(outputs, tuple):
                         outputs = (outputs,)
@@ -176,8 +178,8 @@ class AutoGrader():
                     if len(outputs) != len(output_labels):
                         output_labels = [output_labels[j] for j in range(len(output_labels)) if j not in marked_for_removal]
 
-                    # Save the outputs in a dictionary
-                    dict_outputs = {label:output for label, output in zip(output_labels, outputs)}
+                    # Save the outputs in a dictionary (copy arrays to prevent aliasing across iterations)
+                    dict_outputs = {label: (output.copy() if isinstance(output, np.ndarray) else output) for label, output in zip(output_labels, outputs)}
 
                     output_sets.append(dict_outputs)
             except Exception:
@@ -321,6 +323,11 @@ class AutoGrader():
 
                             print("Too many outputs to display in table format", file=f)
                             print("", file=f)
+
+                            # Outputs with errors
+                            list_of_outputs_with_errors = [column_labels[i] for i in range(len(column_labels)) if percent_correct_by_column[0, i] < 1]
+                            print(f"- **Outputs with Errors:** {', '.join(list_of_outputs_with_errors)}", file=f)
+
 
                             # Percent correct
                             print(f"- **Percent Correct:** {np.mean(percent_correct_by_column)}", file=f)
