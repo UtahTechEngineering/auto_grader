@@ -207,7 +207,7 @@ class AutoGrader():
             # 1. Build column_labels: "variable_name[indexes]" for each key and each element in the array
             column_labels = []
             output_keys = list(compare_output_sets[0].keys())
-            output_shapes = {k: compare_output_sets[0][k].shape for k in output_keys}
+            output_shapes = {k: (compare_output_sets[0][k].shape if isinstance(compare_output_sets[0][k], np.ndarray) else SCALAR_IO) for k in output_keys}
 
             # Generate all (key, index_tuple) pairs
             column_tuples = []
@@ -222,7 +222,10 @@ class AutoGrader():
                 arr = np.empty((len(output_sets), len(column_labels)), dtype=float)
                 for i, outputs in enumerate(output_sets):
                     for j, (k, idx) in enumerate(column_tuples):
-                        arr[i, j] = outputs[k][idx]
+                        if output_shapes[k] is SCALAR_IO:
+                            arr[i, j] = outputs[k]
+                        else:
+                            arr[i, j] = outputs[k][idx]
                 return arr
 
             sol_values = flatten_outputs(compare_output_sets)
