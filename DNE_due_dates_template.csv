@@ -1,0 +1,17 @@
+# Due dates for the autograder's late policy.
+#
+# INSTRUCTOR: this file belongs beside autograder.py in your classroom50 config repo,
+# at <classroom>/autograders/<assignment>/due_dates.csv. Editing a due date is then one
+# commit to that repo, live on the next student push, with no student repository to sync.
+#
+#   course  the course name from student_settings.py, or "all" for every course.
+#           Needed because some assignments are shared between two courses on
+#           different calendars.
+#   title   an assignment title, or a glob such as hw_8_* to cover one homework
+#           across every design study.
+#   due     a date, meaning 23:59 local time, or a date and a time (2026-09-15 17:00).
+#   tz      a time zone name. Blank means America/Denver. Daylight saving is handled.
+#
+# Later rows override earlier ones, so a specific row may follow a glob row.
+# An assignment with no row here has no due date and is never penalized.
+course,title,due,tz

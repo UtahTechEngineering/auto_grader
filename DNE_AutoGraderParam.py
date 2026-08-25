@@ -16,7 +16,8 @@ class AutoGraderParam:
     Class to hold parameters for the Auto Grader.
     """
     # Course parameters
-    course_id = None 
+    course_id = None
+    course = None  # The course name this run loaded, recorded in result.json
     
     # Repository parameters
     repo_name = "" 
