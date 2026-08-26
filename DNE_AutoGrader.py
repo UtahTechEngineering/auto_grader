@@ -56,6 +56,18 @@ class AutoGrader():
         # Time zone assumed for a due_dates.csv row that does not name one.
         DEFAULT_TIMEZONE = "America/Denver"
 
+        # Month names accepted in a due_dates.csv date, spelled out or abbreviated. Held
+        # here rather than left to strptime's %b so that a due date reads the same way on
+        # every machine, whatever the locale is set to.
+        MONTH_NAMES = {}
+        for _number, _name in enumerate(["january", "february", "march", "april", "may", "june",
+                                         "july", "august", "september", "october", "november",
+                                         "december"], start=1):
+            MONTH_NAMES[_name] = _number
+            MONTH_NAMES[_name[:3]] = _number
+        MONTH_NAMES["sept"] = 9
+        del _number, _name
+
         def __init__(self, assignments: List[Assignment], Param: AutoGraderParam):
             # Save assignments
             self.assignments = assignments
@@ -702,28 +714,59 @@ class AutoGrader():
 
             try:
                 with open(due_dates_file, "r", encoding='utf-8-sig', newline="") as f:
-                    rows = csv.DictReader(row for row in f if row.strip() and not row.lstrip().startswith("#"))
-                    for row in rows:
-                        row = {(k or "").strip().lower(): (v or "").strip() for k, v in row.items()}
+                    rows = csv.reader(row for row in f if row.strip() and not row.lstrip().startswith("#"))
+                    for fields in rows:
+                        fields = [field.strip() for field in fields]
+
+                        if len(fields) < 3:
+                            log(f"Skipping the short row {fields} in {due_dates_file}. A row needs at least a course, a title and a due date.", type="warning")
+                            continue
+
+                        # The header row, if it is still there.
+                        if fields[0].lower() == "course" and fields[1].lower() == "title":
+                            continue
+
+                        course, title, rest = fields[0], fields[1], fields[2:]
+
+                        # A date written "Aug 31, 2026" contains a comma, so it arrives
+                        # split across several fields. Put it back together: the time zone
+                        # is the last field only when it is blank or actually names a zone,
+                        # and everything else belongs to the date.
+                        tz = ""
+                        if rest and (rest[-1] == "" or self.is_time_zone(rest[-1])):
+                            tz = rest.pop()
+                        due_text = ", ".join(field for field in rest if field)
 
                         # Only rows for the course this run loaded
-                        if row.get("course") and self.Param.course is not None \
-                                and row["course"] != self.Param.course and row["course"] != "all":
+                        if course and self.Param.course is not None \
+                                and course != self.Param.course and course != "all":
                             continue
 
-                        due = self.parse_due_date(row.get("due", ""), row.get("tz", ""))
+                        due = self.parse_due_date(due_text, tz)
                         if due is None:
-                            log(f"Could not read the due date '{row.get('due', '')}' for '{row.get('title', '')}' in {due_dates_file}. Ignoring that row.", type="warning")
+                            log(f"Could not read the due date '{due_text}' for '{title}' in {due_dates_file}. Ignoring that row.", type="warning")
                             continue
 
-                        for title in titles:
-                            if fnmatch.fnmatch(title, row.get("title", "")):
-                                due_dates[title] = due
+                        for assignment_title in titles:
+                            if fnmatch.fnmatch(assignment_title, title):
+                                due_dates[assignment_title] = due
             except OSError:
                 log(f"Could not read {due_dates_file}. Continuing with no due dates.", type="warning")
                 return {}
 
             return due_dates
+
+        @staticmethod
+        def is_time_zone(name: str) -> bool:
+            """
+            Whether a due_dates.csv field names a time zone, used to tell a trailing tz
+            column apart from the tail of a date written with a comma in it.
+            """
+            try:
+                ZoneInfo(name)
+            except Exception:
+                return False
+            return True
 
         def days_late(self, submitted_at: datetime, due: datetime) -> int:
             """
@@ -787,27 +830,96 @@ class AutoGrader():
         def parse_due_date(due: str, tz: str = "") -> datetime:
             """
             Parse a due_dates.csv date into an aware UTC datetime, or None if unparsable.
-            A bare date means 23:59 in the local time zone.
+
+            Three date styles are accepted, so a due date can be written the way it is
+            most natural to type:
+
+                2026-08-31          ISO
+                8/31/2026           month/day/year, two digit years allowed
+                Aug 31, 2026        month name, abbreviated or full
+
+            Any of them may be followed by a time, otherwise the due date is 23:59 local:
+
+                8/31/2026 17:00     Aug 31, 2026 5pm      2026-08-31T23:59
+
+            Slashed dates are always read as month/day/year, never day/month, so 8/9/2026
+            is the ninth of August. The parsing is done here rather than handed to
+            strptime with a list of formats so that month names do not depend on the
+            machine's locale, and so that every date style picks up time support for free.
             """
-            due = (due or "").strip().replace("T", " ")
+
+            due = " ".join((due or "").split())
             if not due:
                 return None
 
-            for fmt, end_of_day in (("%Y-%m-%d %H:%M:%S", False), ("%Y-%m-%d %H:%M", False), ("%Y-%m-%d", True)):
-                try:
-                    parsed = datetime.strptime(due, fmt)
-                except ValueError:
-                    continue
-                if end_of_day:
-                    parsed = parsed.replace(hour=23, minute=59)
-                try:
-                    zone = ZoneInfo(tz or AutoGrader.DEFAULT_TIMEZONE)
-                except Exception:
-                    log(f"Unknown time zone '{tz}'. Using {AutoGrader.DEFAULT_TIMEZONE}.", type="warning")
-                    zone = ZoneInfo(AutoGrader.DEFAULT_TIMEZONE)
-                return parsed.replace(tzinfo=zone).astimezone(timezone.utc)
+            # ISO strings join the date and time with a T; everything else uses a space.
+            due = re.sub(r"(?<=\d)[Tt](?=\d)", " ", due)
 
-            return None
+            # Pull a trailing time off the end, if there is one. A bare number is not a
+            # time, so a colon or an am/pm marker is required.
+            hour, minute, second = 23, 59, 0
+            time_match = re.search(
+                r"[\s,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([ap])\.?m\.?$"
+                r"|[\s,]+(\d{1,2}):(\d{2})(?::(\d{2}))?$"
+                r"|[\s,]+(\d{1,2})\s*([ap])\.?m\.?$",
+                due, re.IGNORECASE)
+            if time_match:
+                groups = time_match.groups()
+                if groups[0] is not None:              # h:mm[:ss] am/pm
+                    hour, minute, second, meridiem = int(groups[0]), int(groups[1]), int(groups[2] or 0), groups[3]
+                elif groups[4] is not None:            # h:mm[:ss]
+                    hour, minute, second, meridiem = int(groups[4]), int(groups[5]), int(groups[6] or 0), None
+                else:                                  # h am/pm
+                    hour, minute, second, meridiem = int(groups[7]), 0, 0, groups[8]
+
+                if meridiem:
+                    meridiem = meridiem.lower()
+                    if hour == 12:
+                        hour = 0 if meridiem == "a" else 12
+                    elif meridiem == "p":
+                        hour += 12
+
+                if not (0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59):
+                    log(f"'{due}' has an impossible time. Ignoring that due date.", type="warning")
+                    return None
+
+                due = due[:time_match.start()].strip()
+
+            year = month = day = None
+
+            iso = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", due)
+            slashed = re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{2}|\d{4})", due)
+            # Allows "Aug 31, 2026", "August 31 2026", "Aug. 31st, 2026".
+            named = re.fullmatch(r"([A-Za-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})", due)
+
+            if iso:
+                year, month, day = int(iso.group(1)), int(iso.group(2)), int(iso.group(3))
+            elif slashed:
+                month, day, year = int(slashed.group(1)), int(slashed.group(2)), int(slashed.group(3))
+                if year < 100:
+                    year += 2000
+            elif named:
+                month = AutoGrader.MONTH_NAMES.get(named.group(1).lower())
+                if month is None:
+                    log(f"'{named.group(1)}' is not a month name. Ignoring that due date.", type="warning")
+                    return None
+                day, year = int(named.group(2)), int(named.group(3))
+            else:
+                return None
+
+            try:
+                parsed = datetime(year, month, day, hour, minute, second)
+            except ValueError:
+                log(f"'{due}' is not a real date. Ignoring that due date.", type="warning")
+                return None
+
+            try:
+                zone = ZoneInfo(tz or AutoGrader.DEFAULT_TIMEZONE)
+            except Exception:
+                log(f"Unknown time zone '{tz}'. Using {AutoGrader.DEFAULT_TIMEZONE}.", type="warning")
+                zone = ZoneInfo(AutoGrader.DEFAULT_TIMEZONE)
+
+            return parsed.replace(tzinfo=zone).astimezone(timezone.utc)
 
         @staticmethod
         def dtStylish(dt,f):

@@ -9,7 +9,14 @@
 #           different calendars.
 #   title   an assignment title, or a glob such as hw_8_* to cover one homework
 #           across every design study.
-#   due     a date, meaning 23:59 local time, or a date and a time (2026-09-15 17:00).
+#   due     a date, in whichever of these styles you prefer:
+#               8/31/2026        month/day/year, two digit years fine (8/31/26)
+#               Aug 31, 2026     month name, abbreviated or spelled out
+#               2026-08-31       ISO
+#           Slashed dates are always month/day, never day/month, so 8/9/2026 is the
+#           ninth of August.
+#           Add a time to any of them, otherwise the deadline is 23:59 local:
+#               8/31/2026 17:00      Aug 31, 2026 5pm      2026-08-31 11:59 pm
 #   tz      a time zone name. Blank means America/Denver. Daylight saving is handled.
 #
 # Later rows override earlier ones, so a specific row may follow a glob row.
