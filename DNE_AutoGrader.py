@@ -53,10 +53,10 @@ class AutoGrader():
                         "# The instructor will be notified if you submit an edited version of this file.",
                         "########################################################################################"]
 
-        # Time zone assumed for a due_dates.csv row that does not name one.
+        # Time zone assumed for a _due_dates.csv row that does not name one.
         DEFAULT_TIMEZONE = "America/Denver"
 
-        # Month names accepted in a due_dates.csv date, spelled out or abbreviated. Held
+        # Month names accepted in a _due_dates.csv date, spelled out or abbreviated. Held
         # here rather than left to strptime's %b so that a due date reads the same way on
         # every machine, whatever the locale is set to.
         MONTH_NAMES = {}
@@ -685,11 +685,11 @@ class AutoGrader():
 
         def load_due_dates(self) -> dict:
             """
-            Read due_dates.csv and return {assignment title: due date as an aware datetime}.
+            Read _due_dates.csv and return {assignment title: due date as an aware datetime}.
 
             The file is looked for first at $AUTOGRADER_DUE_DATES (set by the Classroom 50
             autograder bootstrapper, which points it at the copy bundled beside autograder.py)
-            and then at due_dates.csv in the repository root. A missing file means no due
+            and then at _due_dates.csv in the repository root. A missing file means no due
             dates and therefore no late penalties, which is the right behaviour when a
             student runs the checker locally.
 
@@ -704,7 +704,7 @@ class AutoGrader():
             due_dates_file = os.environ.get("AUTOGRADER_DUE_DATES")
             if not due_dates_file:
                 path_to_root_folder = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                due_dates_file = os.path.join(path_to_root_folder, "due_dates.csv")
+                due_dates_file = os.path.join(path_to_root_folder, "_due_dates.csv")
 
             if not os.path.isfile(due_dates_file):
                 return {}
@@ -759,7 +759,7 @@ class AutoGrader():
         @staticmethod
         def is_time_zone(name: str) -> bool:
             """
-            Whether a due_dates.csv field names a time zone, used to tell a trailing tz
+            Whether a _due_dates.csv field names a time zone, used to tell a trailing tz
             column apart from the tail of a date written with a comma in it.
             """
             try:
@@ -829,7 +829,7 @@ class AutoGrader():
         @staticmethod
         def parse_due_date(due: str, tz: str = "") -> datetime:
             """
-            Parse a due_dates.csv date into an aware UTC datetime, or None if unparsable.
+            Parse a _due_dates.csv date into an aware UTC datetime, or None if unparsable.
 
             Three date styles are accepted, so a due date can be written the way it is
             most natural to type:
@@ -1084,17 +1084,18 @@ class AutoGrader():
             if not os.path.exists(assignment_info_file) or overwrite:
                 shutil.copy(assignment_info_template_file, assignment_info_file)
 
-            # Initilize the Classroom 50 autograder if it does not exist. This is the file the
-            # instructor installs in their classroom50 config repository; it is kept here so
-            # that it is version controlled alongside the solution code.
+            # Initilize the Classroom 50 autograder if it does not exist. The leading
+            # underscore marks it, like the due dates beside it, as an instructor only file
+            # to delete before handing the repository to students. It is kept here so that
+            # it is version controlled alongside the solution code.
             provided_file = os.path.join(auto_grader_path, "DNE_classroom50_autograder_template.py")
-            installed_file = os.path.join(root_file_path, "DNE_classroom50_autograder.py")
+            installed_file = os.path.join(root_file_path, "_classroom50_autograder.py")
             if not os.path.exists(installed_file) or overwrite:
                 shutil.copy(provided_file, installed_file)
 
             # Initilize the due dates file if it does not exist
             provided_file = os.path.join(auto_grader_path, "DNE_due_dates_template.csv")
-            installed_file = os.path.join(root_file_path, "due_dates.csv")
+            installed_file = os.path.join(root_file_path, "_due_dates.csv")
             if not os.path.exists(installed_file) or overwrite:
                 shutil.copy(provided_file, installed_file)
 

@@ -1,8 +1,11 @@
 # Due dates for the autograder's late policy.
 #
-# INSTRUCTOR: this file belongs beside autograder.py in your classroom50 config repo,
-# at <classroom>/autograders/<assignment>/due_dates.csv. Editing a due date is then one
-# commit to that repo, live on the next student push, with no student repository to sync.
+# INSTRUCTOR ONLY. The leading underscore marks this, like _classroom50_autograder.py,
+# as a file to delete before handing the repository to students. Its real home is beside
+# autograder.py in your classroom50 config repo, at
+# <classroom>/autograders/<assignment>/_due_dates.csv, where it keeps the same name.
+# Editing a due date is then one commit to that repo, live on the next student push,
+# with no student repository to sync.
 #
 #   course  the course name from student_settings.py, or "all" for every course.
 #           Needed because some assignments are shared between two courses on
