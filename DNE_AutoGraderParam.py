@@ -24,7 +24,20 @@ class AutoGraderParam:
     required_modules = []
 
     # Autograding parameters
-    tolerance = 1e-10  # Tolerance for checking outputs
+    # Outputs match when they agree to within EITHER of these, as np.isclose does:
+    #   |a - b| <= absolute_tolerance + relative_tolerance * |b|
+    #
+    # A relative term is what makes the comparison scale invariant. With absolute
+    # tolerance alone, an output of magnitude 1e3 had to agree to thirteen significant
+    # figures, which no two LAPACK builds will do; the grading data is generated on the
+    # instructor's machine and compared on a Linux runner, and an EKF covariance or an
+    # MRAC gain drifts further than that between the two. The absolute term stays as the
+    # floor for outputs near zero, where a relative test means nothing.
+    #
+    # 1e-7 relative means "agree to seven significant figures" -- far beyond what a
+    # wrong formula produces by accident, and comfortably above platform drift.
+    tolerance = 1e-10           # absolute
+    relative_tolerance = 1e-7   # relative
 
     # Markdown formatting parameters
     total_average_report_blocks = int(10)

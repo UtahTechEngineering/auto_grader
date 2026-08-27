@@ -254,7 +254,9 @@ class AutoGrader():
             test_values = flatten_outputs(test_output_sets)
 
             # Compare values with tolerance
-            matches = np.isclose(sol_values, test_values, rtol=0, atol=tolerance)
+            matches = np.isclose(sol_values, test_values,
+                                 rtol=getattr(self.Param, 'relative_tolerance', 0.0),
+                                 atol=tolerance)
             error = np.abs(sol_values - test_values)
             error[matches] = 0  # Set matches to 0 to acount for tolerance
 

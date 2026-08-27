@@ -28,6 +28,12 @@ import subprocess
 import sys
 
 bundle = pathlib.Path(__file__).resolve().parent
+checkout = pathlib.Path.cwd()
+
+# The runner executes this file from the unpacked bundle, so sys.path[0] is the bundle
+# directory, not the repository. Without this the grading scripts run but cannot import
+# their own neighbours: "No module named 'DNE_assignment_info'".
+sys.path.insert(0, str(checkout))
 
 # Point the grader at the due dates bundled beside this file. Keeping them here rather
 # than in the student repository means a due date can be changed with a single push to
@@ -43,9 +49,17 @@ else:
 # fetch by default.
 subprocess.run(["git", "submodule", "update", "--init", "--recursive"], check=False)
 
-# Install the assignment's dependencies.
-subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--upgrade", "pip"], check=False)
-subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "-r", "requirements.txt"], check=False)
+# Install the assignment's dependencies. Not quiet on purpose: when a grading run fails,
+# the install log is the first thing worth reading.
+subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pip"], check=False)
+install = subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
+                         check=False)
+if install.returncode != 0:
+    print("::warning::pip install failed; grading will probably fail to import its dependencies")
 
 # Grade. This writes ./result.json and ./release-body.md for the runner to publish.
-runpy.run_path("DNE_github_grade_on_push.py", run_name="__main__")
+entry_point = checkout / "DNE_github_grade_on_push.py"
+if not entry_point.is_file():
+    sys.exit(f"autograder: {entry_point} not found. The working directory is {checkout}, "
+             f"which does not look like the student's checkout.")
+runpy.run_path(str(entry_point), run_name="__main__")
